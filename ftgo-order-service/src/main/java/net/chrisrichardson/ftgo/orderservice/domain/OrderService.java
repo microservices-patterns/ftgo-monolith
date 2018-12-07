@@ -2,10 +2,8 @@ package net.chrisrichardson.ftgo.orderservice.domain;
 
 import io.eventuate.tram.events.aggregates.ResultWithDomainEvents;
 import io.eventuate.tram.events.publisher.DomainEventPublisher;
-import io.eventuate.tram.sagas.orchestration.SagaManager;
 import io.micrometer.core.instrument.MeterRegistry;
 import net.chrisrichardson.ftgo.accountingservice.domain.AccountingService;
-import net.chrisrichardson.ftgo.accountservice.api.AuthorizeCommand;
 import net.chrisrichardson.ftgo.common.Restaurant;
 import net.chrisrichardson.ftgo.common.RestaurantRepository;
 import net.chrisrichardson.ftgo.consumerservice.domain.ConsumerService;
@@ -16,9 +14,6 @@ import net.chrisrichardson.ftgo.kitchenservice.domain.Ticket;
 import net.chrisrichardson.ftgo.orderservice.api.events.OrderDetails;
 import net.chrisrichardson.ftgo.common.OrderDomainEvent;
 import net.chrisrichardson.ftgo.orderservice.api.events.OrderLineItem;
-import net.chrisrichardson.ftgo.orderservice.sagas.cancelorder.CancelOrderSagaData;
-import net.chrisrichardson.ftgo.orderservice.sagas.createorder.CreateOrderSagaState;
-import net.chrisrichardson.ftgo.orderservice.sagas.reviseorder.ReviseOrderSagaData;
 import net.chrisrichardson.ftgo.orderservice.web.MenuItemIdAndQuantity;
 import net.chrisrichardson.ftgo.common.MenuItem;
 import net.chrisrichardson.ftgo.common.RestaurantMenu;
@@ -42,12 +37,6 @@ public class OrderService {
 
   private RestaurantRepository restaurantRepository;
 
-  private SagaManager<CreateOrderSagaState> createOrderSagaManager;
-
-  private SagaManager<CancelOrderSagaData> cancelOrderSagaManager;
-
-  private SagaManager<ReviseOrderSagaData> reviseOrderSagaManager;
-
   private OrderDomainEventPublisher orderAggregateEventPublisher;
 
   private Optional<MeterRegistry> meterRegistry;
@@ -61,9 +50,6 @@ public class OrderService {
   public OrderService(OrderRepository orderRepository,
                       DomainEventPublisher eventPublisher,
                       RestaurantRepository restaurantRepository,
-                      SagaManager<CreateOrderSagaState> createOrderSagaManager,
-                      SagaManager<CancelOrderSagaData> cancelOrderSagaManager,
-                      SagaManager<ReviseOrderSagaData> reviseOrderSagaManager,
                       OrderDomainEventPublisher orderAggregateEventPublisher,
                       Optional<MeterRegistry> meterRegistry,
                       ConsumerService consumerService,
@@ -72,9 +58,6 @@ public class OrderService {
 
     this.orderRepository = orderRepository;
     this.restaurantRepository = restaurantRepository;
-    this.createOrderSagaManager = createOrderSagaManager;
-    this.cancelOrderSagaManager = cancelOrderSagaManager;
-    this.reviseOrderSagaManager = reviseOrderSagaManager;
     this.orderAggregateEventPublisher = orderAggregateEventPublisher;
     this.meterRegistry = meterRegistry;
     this.consumerService = consumerService;
