@@ -96,7 +96,5 @@ public class KitchenServiceCommandHandler {
     kitchenService.confirmReviseTicket(cm.getCommand().getRestaurantId(), cm.getCommand().getOrderId(), cm.getCommand().getRevisedLineItemQuantities());
     return withSuccess();
   }
-
-
 }
 

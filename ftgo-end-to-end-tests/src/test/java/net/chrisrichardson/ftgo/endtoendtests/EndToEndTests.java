@@ -20,7 +20,6 @@ import org.junit.Test;
 import java.util.Collections;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -55,35 +54,23 @@ public class EndToEndTests {
     return s;
   }
 
-  private int consumerPort = 8081;
-  private int orderPort = 8081;
-  private int accountingPort = 8081;
-  private int restaurantsPort = 8081;
-  private int kitchenPort = 8081;
+  private int applicationPort = 8081;
 
 
   private String consumerBaseUrl(String... pathElements) {
-    return baseUrl(consumerPort, "consumers", pathElements);
+    return baseUrl(applicationPort, "consumers", pathElements);
   }
 
   private String accountingBaseUrl(String... pathElements) {
-    return baseUrl(accountingPort, "accounts", pathElements);
+    return baseUrl(applicationPort, "accounts", pathElements);
   }
 
   private String restaurantBaseUrl(String... pathElements) {
-    return baseUrl(restaurantsPort, "restaurants", pathElements);
-  }
-
-  private String kitchenRestaurantBaseUrl(String... pathElements) {
-    return baseUrl(kitchenPort, "restaurants", pathElements);
+    return baseUrl(applicationPort, "restaurants", pathElements);
   }
 
   private String orderBaseUrl(String... pathElements) {
-    return baseUrl(orderPort, "orders", pathElements);
-  }
-
-  private String orderRestaurantBaseUrl(String... pathElements) {
-    return baseUrl(orderPort, "restaurants", pathElements);
+    return baseUrl(applicationPort, "orders", pathElements);
   }
 
   @BeforeClass
@@ -116,7 +103,7 @@ public class EndToEndTests {
     Eventually.eventually(String.format("verifyOrderRevised state %s", orderId), () -> {
       String orderTotal = given().
               when().
-              get(baseUrl(orderPort, "orders", Integer.toString(orderId))).
+              get(baseUrl(applicationPort, "orders", Integer.toString(orderId))).
               then().
               statusCode(200)
               .extract().
@@ -153,9 +140,7 @@ public class EndToEndTests {
 
     restaurantId = createRestaurant();
 
-    verifyRestaurantCreatedInKitchenService(restaurantId);
-
-    verifyRestaurantCreatedInOrderService(restaurantId);
+    verifyRestaurantCreated(restaurantId);
 
     orderId = createOrder(consumerId, restaurantId);
 
@@ -236,20 +221,11 @@ public class EndToEndTests {
     return restaurantId;
   }
 
-  private void verifyRestaurantCreatedInKitchenService(int restaurantId) {
-    Eventually.eventually(String.format("verifyRestaurantCreatedInKitchenService %s", restaurantId), () ->
+  private void verifyRestaurantCreated(int restaurantId) {
+    Eventually.eventually(String.format("verifyRestaurantCreated %s", restaurantId), () ->
             given().
                     when().
-                    get(kitchenRestaurantBaseUrl(Integer.toString(restaurantId))).
-                    then().
-                    statusCode(200));
-  }
-
-  private void verifyRestaurantCreatedInOrderService(int restaurantId) {
-    Eventually.eventually(String.format("verifyRestaurantCreatedInOrderService %s", restaurantId), () ->
-            given().
-                    when().
-                    get(orderRestaurantBaseUrl(Integer.toString(restaurantId))).
+                    get(restaurantBaseUrl(Integer.toString(restaurantId))).
                     then().
                     statusCode(200));
   }

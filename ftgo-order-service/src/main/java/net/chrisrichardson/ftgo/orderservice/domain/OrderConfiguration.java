@@ -7,8 +7,11 @@ import io.eventuate.tram.sagas.orchestration.SagaManager;
 import io.eventuate.tram.sagas.orchestration.SagaManagerImpl;
 import io.eventuate.tram.sagas.orchestration.SagaOrchestratorConfiguration;
 import io.micrometer.core.instrument.MeterRegistry;
+import net.chrisrichardson.ftgo.accountingservice.domain.AccountingService;
 import net.chrisrichardson.ftgo.common.CommonConfiguration;
 import net.chrisrichardson.ftgo.common.RestaurantRepository;
+import net.chrisrichardson.ftgo.consumerservice.domain.ConsumerService;
+import net.chrisrichardson.ftgo.kitchenservice.domain.KitchenService;
 import net.chrisrichardson.ftgo.orderservice.sagaparticipants.AccountingServiceProxy;
 import net.chrisrichardson.ftgo.orderservice.sagaparticipants.ConsumerServiceProxy;
 import net.chrisrichardson.ftgo.orderservice.sagaparticipants.KitchenServiceProxy;
@@ -44,11 +47,28 @@ public class OrderConfiguration {
   }
 
   @Bean
-  public OrderService orderService(RestaurantRepository restaurantRepository, OrderRepository orderRepository, DomainEventPublisher eventPublisher,
+  public OrderService orderService(RestaurantRepository restaurantRepository,
+                                   OrderRepository orderRepository,
+                                   DomainEventPublisher eventPublisher,
                                    SagaManager<CreateOrderSagaState> createOrderSagaManager,
-                                   SagaManager<CancelOrderSagaData> cancelOrderSagaManager, SagaManager<ReviseOrderSagaData> reviseOrderSagaManager, OrderDomainEventPublisher orderAggregateEventPublisher, Optional<MeterRegistry> meterRegistry) {
-    return new OrderService(orderRepository, eventPublisher, restaurantRepository,
-            createOrderSagaManager, cancelOrderSagaManager, reviseOrderSagaManager, orderAggregateEventPublisher, meterRegistry);
+                                   SagaManager<CancelOrderSagaData> cancelOrderSagaManager,
+                                   SagaManager<ReviseOrderSagaData> reviseOrderSagaManager,
+                                   OrderDomainEventPublisher orderAggregateEventPublisher,
+                                   Optional<MeterRegistry> meterRegistry,
+                                   ConsumerService consumerService,
+                                   KitchenService kitchenService,
+                                   AccountingService accountingService) {
+    return new OrderService(orderRepository,
+            eventPublisher,
+            restaurantRepository,
+            createOrderSagaManager,
+            cancelOrderSagaManager,
+            reviseOrderSagaManager,
+            orderAggregateEventPublisher,
+            meterRegistry,
+            consumerService,
+            kitchenService,
+            accountingService);
   }
 
   @Bean

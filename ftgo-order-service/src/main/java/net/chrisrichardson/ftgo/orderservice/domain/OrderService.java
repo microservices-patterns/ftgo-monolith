@@ -4,8 +4,15 @@ import io.eventuate.tram.events.aggregates.ResultWithDomainEvents;
 import io.eventuate.tram.events.publisher.DomainEventPublisher;
 import io.eventuate.tram.sagas.orchestration.SagaManager;
 import io.micrometer.core.instrument.MeterRegistry;
+import net.chrisrichardson.ftgo.accountingservice.domain.AccountingService;
+import net.chrisrichardson.ftgo.accountservice.api.AuthorizeCommand;
 import net.chrisrichardson.ftgo.common.Restaurant;
 import net.chrisrichardson.ftgo.common.RestaurantRepository;
+import net.chrisrichardson.ftgo.consumerservice.domain.ConsumerService;
+import net.chrisrichardson.ftgo.kitchenservice.api.TicketDetails;
+import net.chrisrichardson.ftgo.kitchenservice.api.TicketLineItem;
+import net.chrisrichardson.ftgo.kitchenservice.domain.KitchenService;
+import net.chrisrichardson.ftgo.kitchenservice.domain.Ticket;
 import net.chrisrichardson.ftgo.orderservice.api.events.OrderDetails;
 import net.chrisrichardson.ftgo.common.OrderDomainEvent;
 import net.chrisrichardson.ftgo.orderservice.api.events.OrderLineItem;
@@ -45,7 +52,24 @@ public class OrderService {
 
   private Optional<MeterRegistry> meterRegistry;
 
-  public OrderService(OrderRepository orderRepository, DomainEventPublisher eventPublisher, RestaurantRepository restaurantRepository, SagaManager<CreateOrderSagaState> createOrderSagaManager, SagaManager<CancelOrderSagaData> cancelOrderSagaManager, SagaManager<ReviseOrderSagaData> reviseOrderSagaManager, OrderDomainEventPublisher orderAggregateEventPublisher, Optional<MeterRegistry> meterRegistry) {
+  private ConsumerService consumerService;
+
+  private KitchenService kitchenService;
+
+  private AccountingService accountingService;
+
+  public OrderService(OrderRepository orderRepository,
+                      DomainEventPublisher eventPublisher,
+                      RestaurantRepository restaurantRepository,
+                      SagaManager<CreateOrderSagaState> createOrderSagaManager,
+                      SagaManager<CancelOrderSagaData> cancelOrderSagaManager,
+                      SagaManager<ReviseOrderSagaData> reviseOrderSagaManager,
+                      OrderDomainEventPublisher orderAggregateEventPublisher,
+                      Optional<MeterRegistry> meterRegistry,
+                      ConsumerService consumerService,
+                      KitchenService kitchenService,
+                      AccountingService accountingService) {
+
     this.orderRepository = orderRepository;
     this.restaurantRepository = restaurantRepository;
     this.createOrderSagaManager = createOrderSagaManager;
@@ -53,8 +77,12 @@ public class OrderService {
     this.reviseOrderSagaManager = reviseOrderSagaManager;
     this.orderAggregateEventPublisher = orderAggregateEventPublisher;
     this.meterRegistry = meterRegistry;
+    this.consumerService = consumerService;
+    this.kitchenService = kitchenService;
+    this.accountingService = accountingService;
   }
 
+  @Transactional
   public Order createOrder(long consumerId, long restaurantId,
                            List<MenuItemIdAndQuantity> lineItems) {
     Restaurant restaurant = restaurantRepository.findById(restaurantId)
@@ -72,14 +100,32 @@ public class OrderService {
 
     OrderDetails orderDetails = new OrderDetails(consumerId, restaurantId, orderLineItems, order.getOrderTotal());
 
-    CreateOrderSagaState data = new CreateOrderSagaState(order.getId(), orderDetails);
-    createOrderSagaManager.create(data, Order.class, order.getId());
+//    CreateOrderSagaState data = new CreateOrderSagaState(order.getId(), orderDetails);
+//    createOrderSagaManager.create(data, Order.class, order.getId());
+
+    consumerService.validateOrderForConsumer(consumerId, orderDetails.getOrderTotal());
+    Ticket ticket = kitchenService.createTicket(restaurantId, order.getId(), makeTicketDetails(orderDetails));
+    //accountingService.authorize?
+    kitchenService.confirmCreateTicket(ticket.getId());
+    approveOrder(order.getId());
 
     meterRegistry.ifPresent(mr -> mr.counter("placed_orders").increment());
 
     return order;
   }
 
+  private TicketDetails makeTicketDetails(OrderDetails orderDetails) {
+    // TODO FIXME
+    return new TicketDetails(makeTicketLineItems(orderDetails.getLineItems()));
+  }
+
+  private List<TicketLineItem> makeTicketLineItems(List<OrderLineItem> lineItems) {
+    return lineItems.stream().map(this::makeTicketLineItem).collect(toList());
+  }
+
+  private TicketLineItem makeTicketLineItem(OrderLineItem orderLineItem) {
+    return new TicketLineItem(orderLineItem.getMenuItemId(), orderLineItem.getName(), orderLineItem.getQuantity());
+  }
 
   private List<OrderLineItem> makeOrderLineItems(List<MenuItemIdAndQuantity> lineItems, Restaurant restaurant) {
     return lineItems.stream().map(li -> {
@@ -101,11 +147,19 @@ public class OrderService {
     throw new UnsupportedOperationException();
   }
 
+  @Transactional
   public Order cancel(Long orderId) {
     Order order = orderRepository.findById(orderId)
             .orElseThrow(() -> new OrderNotFoundException(orderId));
-    CancelOrderSagaData sagaData = new CancelOrderSagaData(order.getConsumerId(), orderId, order.getOrderTotal());
-    cancelOrderSagaManager.create(sagaData);
+//    CancelOrderSagaData sagaData = new CancelOrderSagaData(order.getConsumerId(), orderId, order.getOrderTotal());
+//    cancelOrderSagaManager.create(sagaData);
+
+    beginCancel(orderId);
+    kitchenService.cancelTicket(order.getRestaurantId(), orderId);
+    //reverse authorization ?
+    kitchenService.confirmCancelTicket(order.getRestaurantId(), orderId);
+    confirmCancelled(orderId);
+
     return order;
   }
 
@@ -138,10 +192,18 @@ public class OrderService {
     updateOrder(orderId, Order::noteCancelled);
   }
 
+  @Transactional
   public Order reviseOrder(long orderId, OrderRevision orderRevision) {
     Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
-    ReviseOrderSagaData sagaData = new ReviseOrderSagaData(order.getConsumerId(), orderId, null, orderRevision);
-    reviseOrderSagaManager.create(sagaData);
+//    ReviseOrderSagaData sagaData = new ReviseOrderSagaData(order.getConsumerId(), orderId, null, orderRevision);
+//    reviseOrderSagaManager.create(sagaData);
+    Optional<RevisedOrder> revisedOrder = beginReviseOrder(orderId, orderRevision);
+    revisedOrder.ifPresent(ro -> {
+      kitchenService.beginReviseOrder(order.getRestaurantId(), orderId, orderRevision.getRevisedLineItemQuantities());
+      //revise authorization???
+      kitchenService.confirmReviseTicket(order.getRestaurantId(), orderId, orderRevision.getRevisedLineItemQuantities());
+      confirmRevision(orderId, orderRevision);
+    });
     return order;
   }
 
