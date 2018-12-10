@@ -14,8 +14,6 @@ import net.chrisrichardson.ftgo.common.Money;
 import net.chrisrichardson.ftgo.common.RestaurantRepository;
 import net.chrisrichardson.ftgo.consumerservice.api.ConsumerServiceChannels;
 import net.chrisrichardson.ftgo.consumerservice.api.ValidateOrderByConsumer;
-import net.chrisrichardson.ftgo.orderservice.messaging.OrderServiceMessagingConfiguration;
-import net.chrisrichardson.ftgo.orderservice.service.OrderCommandHandlersConfiguration;
 import net.chrisrichardson.ftgo.orderservice.web.MenuItemIdAndQuantity;
 import net.chrisrichardson.ftgo.orderservice.web.OrderWebConfiguration;
 import net.chrisrichardson.ftgo.common.MenuItem;
@@ -59,7 +57,7 @@ public class OrderServiceIntegrationTest {
 
   @Configuration
   @EnableAutoConfiguration
-  @Import({OrderWebConfiguration.class, OrderServiceMessagingConfiguration.class,  OrderCommandHandlersConfiguration.class,
+  @Import({OrderWebConfiguration.class,
           TramCommandProducerConfiguration.class,
           TramInMemoryConfiguration.class})
   public static class TestConfiguration {
