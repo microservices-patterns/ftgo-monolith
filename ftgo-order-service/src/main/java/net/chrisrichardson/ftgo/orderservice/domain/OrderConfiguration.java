@@ -37,14 +37,12 @@ public class OrderConfiguration {
   @Bean
   public OrderService orderService(RestaurantRepository restaurantRepository,
                                    OrderRepository orderRepository,
-                                   DomainEventPublisher eventPublisher,
                                    OrderDomainEventPublisher orderAggregateEventPublisher,
                                    Optional<MeterRegistry> meterRegistry,
                                    ConsumerService consumerService,
                                    KitchenService kitchenService,
                                    AccountingService accountingService) {
     return new OrderService(orderRepository,
-            eventPublisher,
             restaurantRepository,
             orderAggregateEventPublisher,
             meterRegistry,

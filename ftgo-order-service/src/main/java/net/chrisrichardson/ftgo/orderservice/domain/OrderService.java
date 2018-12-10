@@ -1,7 +1,6 @@
 package net.chrisrichardson.ftgo.orderservice.domain;
 
 import io.eventuate.tram.events.aggregates.ResultWithDomainEvents;
-import io.eventuate.tram.events.publisher.DomainEventPublisher;
 import io.micrometer.core.instrument.MeterRegistry;
 import net.chrisrichardson.ftgo.accountingservice.domain.AccountingService;
 import net.chrisrichardson.ftgo.common.Restaurant;
@@ -48,7 +47,6 @@ public class OrderService {
   private AccountingService accountingService;
 
   public OrderService(OrderRepository orderRepository,
-                      DomainEventPublisher eventPublisher,
                       RestaurantRepository restaurantRepository,
                       OrderDomainEventPublisher orderAggregateEventPublisher,
                       Optional<MeterRegistry> meterRegistry,
@@ -73,13 +71,8 @@ public class OrderService {
 
     List<OrderLineItem> orderLineItems = makeOrderLineItems(lineItems, restaurant);
 
-    ResultWithDomainEvents<Order, OrderDomainEvent> orderAndEvents =
-            Order.createOrder(consumerId, restaurant, orderLineItems);
-
-    Order order = orderAndEvents.result;
+    Order order = new Order(consumerId, restaurant.getId(), orderLineItems);
     orderRepository.save(order);
-
-    orderAggregateEventPublisher.publish(order, orderAndEvents.events);
 
     OrderDetails orderDetails = new OrderDetails(consumerId, restaurantId, orderLineItems, order.getOrderTotal());
 
