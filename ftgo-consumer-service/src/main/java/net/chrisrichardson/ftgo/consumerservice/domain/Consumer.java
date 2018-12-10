@@ -1,6 +1,5 @@
 package net.chrisrichardson.ftgo.consumerservice.domain;
 
-import io.eventuate.tram.events.ResultWithEvents;
 import net.chrisrichardson.ftgo.common.Money;
 import net.chrisrichardson.ftgo.common.PersonName;
 
