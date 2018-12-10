@@ -43,8 +43,4 @@ public class Consumer {
   public PersonName getName() {
     return name;
   }
-
-  public static ResultWithEvents<Consumer> create(PersonName name) {
-    return new ResultWithEvents<>(new Consumer(name), new ConsumerCreated());
-  }
 }
