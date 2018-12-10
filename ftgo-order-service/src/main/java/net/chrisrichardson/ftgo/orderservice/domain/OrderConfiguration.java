@@ -10,10 +10,6 @@ import net.chrisrichardson.ftgo.common.CommonConfiguration;
 import net.chrisrichardson.ftgo.common.RestaurantRepository;
 import net.chrisrichardson.ftgo.consumerservice.domain.ConsumerService;
 import net.chrisrichardson.ftgo.kitchenservice.domain.KitchenService;
-import net.chrisrichardson.ftgo.orderservice.sagaparticipants.AccountingServiceProxy;
-import net.chrisrichardson.ftgo.orderservice.sagaparticipants.ConsumerServiceProxy;
-import net.chrisrichardson.ftgo.orderservice.sagaparticipants.KitchenServiceProxy;
-import net.chrisrichardson.ftgo.orderservice.sagaparticipants.OrderServiceProxy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -55,26 +51,6 @@ public class OrderConfiguration {
             consumerService,
             kitchenService,
             accountingService);
-  }
-
-  @Bean
-  public KitchenServiceProxy kitchenServiceProxy() {
-    return new KitchenServiceProxy();
-  }
-
-  @Bean
-  public OrderServiceProxy orderServiceProxy() {
-    return new OrderServiceProxy();
-  }
-
-  @Bean
-  public ConsumerServiceProxy consumerServiceProxy() {
-    return new ConsumerServiceProxy();
-  }
-
-  @Bean
-  public AccountingServiceProxy accountingServiceProxy() {
-    return new AccountingServiceProxy();
   }
 
   @Bean
