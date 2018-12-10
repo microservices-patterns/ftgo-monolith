@@ -57,7 +57,7 @@ public class Restaurant {
     return menuItems.stream().filter(mi -> mi.getId().equals(menuItemId)).findFirst();
   }
 
-  public List<OrderDomainEvent> reviseMenu(RestaurantMenu revisedMenu) {
+  public void reviseMenu(RestaurantMenu revisedMenu) {
     throw new UnsupportedOperationException();
   }
 }

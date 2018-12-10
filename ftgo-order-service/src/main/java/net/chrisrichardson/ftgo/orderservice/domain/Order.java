@@ -1,9 +1,6 @@
 package net.chrisrichardson.ftgo.orderservice.domain;
 
-import io.eventuate.tram.events.aggregates.ResultWithDomainEvents;
 import net.chrisrichardson.ftgo.common.Money;
-import net.chrisrichardson.ftgo.common.OrderDomainEvent;
-import net.chrisrichardson.ftgo.common.Restaurant;
 import net.chrisrichardson.ftgo.common.UnsupportedStateTransitionException;
 import net.chrisrichardson.ftgo.orderservice.api.events.*;
 
@@ -14,8 +11,6 @@ import static net.chrisrichardson.ftgo.orderservice.api.events.OrderState.APPROV
 import static net.chrisrichardson.ftgo.orderservice.api.events.OrderState.APPROVAL_PENDING;
 import static net.chrisrichardson.ftgo.orderservice.api.events.OrderState.REJECTED;
 import static net.chrisrichardson.ftgo.orderservice.api.events.OrderState.REVISION_PENDING;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 
 @Entity
 @Table(name = "orders")
@@ -71,65 +66,59 @@ public class Order {
     return orderLineItems.orderTotal();
   }
 
-  public List<OrderDomainEvent> cancel() {
+  public void cancel() {
     switch (state) {
       case APPROVED:
         this.state = OrderState.CANCEL_PENDING;
-        return emptyList();
+        return;
       default:
         throw new UnsupportedStateTransitionException(state);
     }
   }
 
-  public List<OrderDomainEvent> undoPendingCancel() {
+  public void undoPendingCancel() {
     switch (state) {
       case CANCEL_PENDING:
         this.state = OrderState.APPROVED;
-        return emptyList();
+        return;
       default:
         throw new UnsupportedStateTransitionException(state);
     }
   }
 
-  public List<OrderDomainEvent> noteCancelled() {
+  public void noteCancelled() {
     switch (state) {
       case CANCEL_PENDING:
         this.state = OrderState.CANCELLED;
-        return singletonList(new OrderCancelled());
+        return;
       default:
         throw new UnsupportedStateTransitionException(state);
     }
   }
 
-  public List<OrderDomainEvent> noteApproved() {
+  public void noteApproved() {
     switch (state) {
       case APPROVAL_PENDING:
         this.state = APPROVED;
-        return singletonList(new OrderAuthorized());
+        return;
       default:
         throw new UnsupportedStateTransitionException(state);
     }
 
   }
 
-  public List<OrderDomainEvent> noteRejected() {
+  public void noteRejected() {
     switch (state) {
       case APPROVAL_PENDING:
         this.state = REJECTED;
-        return singletonList(new OrderRejected());
-
+        return;
       default:
         throw new UnsupportedStateTransitionException(state);
     }
 
   }
 
-
-  public List<OrderDomainEvent> noteReversingAuthorization() {
-    return null;
-  }
-
-  public ResultWithDomainEvents<LineItemQuantityChange, OrderDomainEvent> revise(OrderRevision orderRevision) {
+  public LineItemQuantityChange revise(OrderRevision orderRevision) {
     switch (state) {
 
       case APPROVED:
@@ -138,24 +127,24 @@ public class Order {
           throw new OrderMinimumNotMetException();
         }
         this.state = REVISION_PENDING;
-        return new ResultWithDomainEvents<>(change, singletonList(new OrderRevisionProposed(orderRevision, change.currentOrderTotal, change.newOrderTotal)));
+        return change;
 
       default:
         throw new UnsupportedStateTransitionException(state);
     }
   }
 
-  public List<OrderDomainEvent> rejectRevision() {
+  public void rejectRevision() {
     switch (state) {
       case REVISION_PENDING:
         this.state = APPROVED;
-        return emptyList();
+        return;
       default:
         throw new UnsupportedStateTransitionException(state);
     }
   }
 
-  public List<OrderDomainEvent> confirmRevision(OrderRevision orderRevision) {
+  public void confirmRevision(OrderRevision orderRevision) {
     switch (state) {
       case REVISION_PENDING:
         LineItemQuantityChange licd = orderLineItems.lineItemQuantityChange(orderRevision);
@@ -167,7 +156,7 @@ public class Order {
         }
 
         this.state = APPROVED;
-        return singletonList(new OrderRevised(orderRevision, licd.currentOrderTotal, licd.newOrderTotal));
+        return;
       default:
         throw new UnsupportedStateTransitionException(state);
     }

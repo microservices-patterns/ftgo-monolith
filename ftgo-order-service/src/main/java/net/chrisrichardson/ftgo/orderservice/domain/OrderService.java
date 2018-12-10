@@ -1,6 +1,5 @@
 package net.chrisrichardson.ftgo.orderservice.domain;
 
-import io.eventuate.tram.events.aggregates.ResultWithDomainEvents;
 import io.micrometer.core.instrument.MeterRegistry;
 import net.chrisrichardson.ftgo.accountingservice.domain.AccountingService;
 import net.chrisrichardson.ftgo.common.Restaurant;
@@ -11,7 +10,6 @@ import net.chrisrichardson.ftgo.kitchenservice.api.TicketLineItem;
 import net.chrisrichardson.ftgo.kitchenservice.domain.KitchenService;
 import net.chrisrichardson.ftgo.kitchenservice.domain.Ticket;
 import net.chrisrichardson.ftgo.orderservice.api.events.OrderDetails;
-import net.chrisrichardson.ftgo.common.OrderDomainEvent;
 import net.chrisrichardson.ftgo.orderservice.api.events.OrderLineItem;
 import net.chrisrichardson.ftgo.orderservice.web.MenuItemIdAndQuantity;
 import net.chrisrichardson.ftgo.common.MenuItem;
@@ -23,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import static java.util.stream.Collectors.toList;
 
@@ -36,8 +34,6 @@ public class OrderService {
 
   private RestaurantRepository restaurantRepository;
 
-  private OrderDomainEventPublisher orderAggregateEventPublisher;
-
   private Optional<MeterRegistry> meterRegistry;
 
   private ConsumerService consumerService;
@@ -48,7 +44,6 @@ public class OrderService {
 
   public OrderService(OrderRepository orderRepository,
                       RestaurantRepository restaurantRepository,
-                      OrderDomainEventPublisher orderAggregateEventPublisher,
                       Optional<MeterRegistry> meterRegistry,
                       ConsumerService consumerService,
                       KitchenService kitchenService,
@@ -56,7 +51,6 @@ public class OrderService {
 
     this.orderRepository = orderRepository;
     this.restaurantRepository = restaurantRepository;
-    this.orderAggregateEventPublisher = orderAggregateEventPublisher;
     this.meterRegistry = meterRegistry;
     this.consumerService = consumerService;
     this.kitchenService = kitchenService;
@@ -75,9 +69,6 @@ public class OrderService {
     orderRepository.save(order);
 
     OrderDetails orderDetails = new OrderDetails(consumerId, restaurantId, orderLineItems, order.getOrderTotal());
-
-//    CreateOrderSagaState data = new CreateOrderSagaState(order.getId(), orderDetails);
-//    createOrderSagaManager.create(data, Order.class, order.getId());
 
     consumerService.validateOrderForConsumer(consumerId, orderDetails.getOrderTotal());
     Ticket ticket = kitchenService.createTicket(restaurantId, order.getId(), makeTicketDetails(orderDetails));
@@ -110,15 +101,6 @@ public class OrderService {
     }).collect(toList());
   }
 
-
-  public Optional<Order> confirmChangeLineItemQuantity(Long orderId, OrderRevision orderRevision) {
-    return orderRepository.findById(orderId).map(order -> {
-      List<OrderDomainEvent> events = order.confirmRevision(orderRevision);
-      orderAggregateEventPublisher.publish(order, events);
-      return order;
-    });
-  }
-
   public void noteReversingAuthorization(Long orderId) {
     throw new UnsupportedOperationException();
   }
@@ -139,9 +121,9 @@ public class OrderService {
     return order;
   }
 
-  private Order updateOrder(long orderId, Function<Order, List<OrderDomainEvent>> updater) {
+  private Order updateOrder(long orderId, Consumer<Order> updater) {
     return orderRepository.findById(orderId).map(order -> {
-      orderAggregateEventPublisher.publish(order, updater.apply(order));
+      updater.accept(order);
       return order;
     }).orElseThrow(() -> new OrderNotFoundException(orderId));
   }
@@ -185,9 +167,7 @@ public class OrderService {
 
   public Optional<RevisedOrder> beginReviseOrder(long orderId, OrderRevision revision) {
     return orderRepository.findById(orderId).map(order -> {
-      ResultWithDomainEvents<LineItemQuantityChange, OrderDomainEvent> result = order.revise(revision);
-      orderAggregateEventPublisher.publish(order, result.events);
-      return new RevisedOrder(order, result.result);
+      return new RevisedOrder(order, order.revise(revision));
     });
   }
 
@@ -208,7 +188,7 @@ public class OrderService {
   @Transactional(propagation = Propagation.MANDATORY)
   public void reviseMenu(long id, RestaurantMenu revisedMenu) {
     restaurantRepository.findById(id).map(restaurant -> {
-      List<OrderDomainEvent> events = restaurant.reviseMenu(revisedMenu);
+      restaurant.reviseMenu(revisedMenu);
       return restaurant;
     }).orElseThrow(RuntimeException::new);
   }

@@ -1,6 +1,5 @@
 package net.chrisrichardson.ftgo.orderservice.domain;
 
-import io.eventuate.tram.events.publisher.DomainEventPublisher;
 import io.eventuate.tram.events.publisher.TramEventsPublisherConfiguration;
 import io.eventuate.tram.sagas.orchestration.SagaCommandProducer;
 import io.eventuate.tram.sagas.orchestration.SagaOrchestratorConfiguration;
@@ -37,23 +36,16 @@ public class OrderConfiguration {
   @Bean
   public OrderService orderService(RestaurantRepository restaurantRepository,
                                    OrderRepository orderRepository,
-                                   OrderDomainEventPublisher orderAggregateEventPublisher,
                                    Optional<MeterRegistry> meterRegistry,
                                    ConsumerService consumerService,
                                    KitchenService kitchenService,
                                    AccountingService accountingService) {
     return new OrderService(orderRepository,
             restaurantRepository,
-            orderAggregateEventPublisher,
             meterRegistry,
             consumerService,
             kitchenService,
             accountingService);
-  }
-
-  @Bean
-  public OrderDomainEventPublisher orderAggregateEventPublisher(DomainEventPublisher eventPublisher) {
-    return new OrderDomainEventPublisher(eventPublisher);
   }
 
   @Bean
