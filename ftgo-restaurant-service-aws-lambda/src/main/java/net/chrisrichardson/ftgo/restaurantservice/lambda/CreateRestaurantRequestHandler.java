@@ -3,7 +3,7 @@ package net.chrisrichardson.ftgo.restaurantservice.lambda;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import io.eventuate.javaclient.commonimpl.JSonMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chrisrichardson.ftgo.common.Restaurant;
 import net.chrisrichardson.ftgo.restaurantservice.aws.ApiGatewayResponse;
 import net.chrisrichardson.ftgo.restaurantservice.domain.RestaurantService;
@@ -13,11 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import java.io.IOException;
+
 import static net.chrisrichardson.ftgo.restaurantservice.aws.ApiGatewayResponse.applicationJsonHeaders;
 
 @Configuration
 @Import(RestaurantServiceLambdaConfiguration.class)
 public class CreateRestaurantRequestHandler extends AbstractAutowiringHttpRequestHandler {
+
+  @Autowired
+  private ObjectMapper objectMapper;
 
   @Autowired
   private RestaurantService restaurantService;
@@ -30,7 +35,12 @@ public class CreateRestaurantRequestHandler extends AbstractAutowiringHttpReques
   @Override
   protected APIGatewayProxyResponseEvent handleHttpRequest(APIGatewayProxyRequestEvent request, Context context) {
 
-    CreateRestaurantRequest crr = JSonMapper.fromJson(request.getBody(), CreateRestaurantRequest.class);
+    CreateRestaurantRequest crr;
+    try {
+      crr = objectMapper.readValue(request.getBody(), CreateRestaurantRequest.class);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
 
     Restaurant rest = restaurantService.create(crr);
 

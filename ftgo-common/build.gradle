@@ -4,10 +4,9 @@ dependencies {
 
     compile "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
 
-    compile "io.eventuate.client.java:eventuate-client-java-common-impl:$eventuateClientVersion"
-
-    compile "io.eventuate.tram.core:eventuate-tram-events:$eventuateTramVersion"
-    compile "io.eventuate.tram.core:eventuate-tram-commands:$eventuateTramVersion"
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.7'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.7'
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
 
     compile 'mysql:mysql-connector-java:5.1.39'
 

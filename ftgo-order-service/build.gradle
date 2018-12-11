@@ -18,7 +18,6 @@ apply plugin: 'com.google.protobuf'
 apply plugin:'io.spring.dependency-management'
 
 apply plugin: IntegrationTestsPlugin
-apply plugin: ComponentTestsPlugin
 
 dependencyManagement {
     imports {

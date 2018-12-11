@@ -1,8 +1,9 @@
 package net.chrisrichardson.ftgo.restaurantservice.aws;
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import io.eventuate.javaclient.commonimpl.JSonMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collections;
@@ -87,7 +88,11 @@ public class ApiGatewayResponse {
       if (rawBody != null) {
         body = rawBody;
       } else if (objectBody != null) {
-        body = JSonMapper.toJson(objectBody);
+        try {
+          body = new ObjectMapper().writeValueAsString(objectBody);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
       } else if (binaryBody != null) {
         body = new String(Base64.getEncoder().encode(binaryBody), StandardCharsets.UTF_8);
       }

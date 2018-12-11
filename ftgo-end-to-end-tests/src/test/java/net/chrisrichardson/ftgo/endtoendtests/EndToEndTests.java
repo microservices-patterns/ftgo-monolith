@@ -1,18 +1,14 @@
 package net.chrisrichardson.ftgo.endtoendtests;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.ObjectMapperConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
-import io.eventuate.javaclient.commonimpl.JSonMapper;
-import net.chrisrichardson.ftgo.common.CommonJsonMapperInitializer;
-import net.chrisrichardson.ftgo.common.Money;
-import net.chrisrichardson.ftgo.common.PersonName;
+import net.chrisrichardson.ftgo.common.*;
 import net.chrisrichardson.ftgo.consumerservice.api.web.CreateConsumerRequest;
 import net.chrisrichardson.ftgo.orderservice.api.web.CreateOrderRequest;
 import net.chrisrichardson.ftgo.orderservice.api.web.ReviseOrderRequest;
 import net.chrisrichardson.ftgo.restaurantservice.events.CreateRestaurantRequest;
-import net.chrisrichardson.ftgo.common.MenuItem;
-import net.chrisrichardson.ftgo.common.RestaurantMenu;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,6 +32,7 @@ public class EndToEndTests {
   private int restaurantId;
   private int orderId;
   private final Money priceOfChickenVindaloo = new Money("12.34");
+  private static ObjectMapper objectMapper = new ObjectMapper();
 
   private String baseUrl(int port, String path, String... pathElements) {
     StringBuilder sb = new StringBuilder("http://");
@@ -75,10 +72,10 @@ public class EndToEndTests {
 
   @BeforeClass
   public static void initialize() {
-    CommonJsonMapperInitializer.registerMoneyModule();
+    objectMapper.registerModule(new MoneyModule());
 
     RestAssured.config = RestAssuredConfig.config().objectMapperConfig(new ObjectMapperConfig().jackson2ObjectMapperFactory(
-            (aClass, s) -> JSonMapper.objectMapper
+            (aClass, s) -> objectMapper
     ));
 
   }
