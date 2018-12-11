@@ -1,21 +1,20 @@
 package net.chrisrichardson.ftgo.accountingservice.web;
 
 public class GetAccountResponse {
-  private String accountId;
+  private Long accountId;
 
-  public String getAccountId() {
+  public Long getAccountId() {
     return accountId;
   }
 
-  public void setAccountId(String accountId) {
+  public void setAccountId(Long accountId) {
     this.accountId = accountId;
   }
 
   public GetAccountResponse() {
-
   }
 
-  public GetAccountResponse(String accountId) {
+  public GetAccountResponse(Long accountId) {
     this.accountId = accountId;
   }
 }

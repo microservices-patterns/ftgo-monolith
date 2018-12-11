@@ -1,43 +1,41 @@
 package net.chrisrichardson.ftgo.accountingservice.domain;
 
-import io.eventuate.Event;
-import io.eventuate.ReflectiveMutableCommandProcessingAggregate;
-import io.eventuate.tram.sagas.eventsourcingsupport.SagaReplyRequestedEvent;
+import net.chrisrichardson.ftgo.common.Money;
 
-import java.util.Collections;
-import java.util.List;
+import javax.persistence.*;
 
-import static io.eventuate.EventUtil.events;
+@Entity
+@Table(name = "accounts")
+@Access(AccessType.FIELD)
+public class Account {
 
-public class Account extends ReflectiveMutableCommandProcessingAggregate<Account, AccountCommand> {
+  @Id
+  private Long id;
 
-  public List<Event> process(CreateAccountCommand command) {
-    return events(new AccountCreatedEvent());
+  @Embedded
+  private Money money;
+
+  private Account() {
   }
 
-  public void apply(AccountCreatedEvent event) {
-
+  public Account(Long consumerId, Money money) {
+    this.id = consumerId;
+    this.money = money;
   }
 
-
-  public List<Event> process(AuthorizeCommandInternal command) {
-    return events(new AccountAuthorizedEvent());
+  public Long getId() {
+    return id;
   }
 
-  public List<Event> process(ReverseAuthorizationCommandInternal command) {
-    return Collections.emptyList();
-  }
-  public List<Event> process(ReviseAuthorizationCommandInternal command) {
-    return Collections.emptyList();
+  public Long getConsumerId() {
+    return id;
   }
 
-  public void apply(AccountAuthorizedEvent event) {
-
+  public Money getMoney() {
+    return money;
   }
 
-  public void apply(SagaReplyRequestedEvent event) {
-    // TODO - need a way to not need this method
+  public void setMoney(Money money) {
+    this.money = money;
   }
-
-
 }

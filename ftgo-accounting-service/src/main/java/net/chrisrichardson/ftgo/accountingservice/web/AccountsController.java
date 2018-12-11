@@ -1,9 +1,7 @@
 package net.chrisrichardson.ftgo.accountingservice.web;
 
-import io.eventuate.EntityNotFoundException;
-import io.eventuate.sync.AggregateRepository;
 import net.chrisrichardson.ftgo.accountingservice.domain.Account;
-import net.chrisrichardson.ftgo.accountingservice.domain.AccountCommand;
+import net.chrisrichardson.ftgo.accountingservice.domain.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,15 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountsController {
 
   @Autowired
-  private AggregateRepository<Account, AccountCommand> accountRepository;
+  private AccountRepository accountRepository;
 
   @RequestMapping(path="/{accountId}", method= RequestMethod.GET)
-  public ResponseEntity<GetAccountResponse> getAccount(@PathVariable String accountId) {
-       try {
-          return new ResponseEntity<>(new GetAccountResponse(accountId), HttpStatus.OK);
-       } catch (EntityNotFoundException e) {
-         return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
-       }
+  public ResponseEntity<GetAccountResponse> getAccount(@PathVariable Long accountId) {
+    return accountRepository
+            .findById(accountId)
+            .map(Account::getId)
+            .map(id -> new ResponseEntity<>(new GetAccountResponse(id), HttpStatus.OK))
+            .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
   }
 
 }

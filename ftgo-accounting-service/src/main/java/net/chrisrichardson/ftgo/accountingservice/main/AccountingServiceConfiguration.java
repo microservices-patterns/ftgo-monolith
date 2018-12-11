@@ -2,22 +2,22 @@ package net.chrisrichardson.ftgo.accountingservice.main;
 
 import io.eventuate.javaclient.driver.EventuateDriverConfiguration;
 import io.eventuate.jdbckafka.TramJdbcKafkaConfiguration;
-import io.eventuate.tram.commands.common.ChannelMapping;
-import io.eventuate.tram.commands.common.DefaultChannelMapping;
 import io.eventuate.tram.commands.producer.TramCommandProducerConfiguration;
 import net.chrisrichardson.ftgo.accountingservice.domain.AccountConfiguration;
-import net.chrisrichardson.ftgo.accountingservice.messaging.AccountingMessagingConfiguration;
 import net.chrisrichardson.ftgo.accountingservice.web.AccountingWebConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
 @EnableAutoConfiguration
+@EnableJpaRepositories
+@EntityScan
 @ComponentScan
-@Import({AccountingMessagingConfiguration.class,
+@Import({AccountConfiguration.class,
         AccountingWebConfiguration.class,
         TramCommandProducerConfiguration.class,
         EventuateDriverConfiguration.class,
