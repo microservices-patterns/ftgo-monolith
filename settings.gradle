@@ -17,7 +17,6 @@ include "ftgo-accounting-service"
 
 include "ftgo-consumer-service-api"
 include "ftgo-consumer-service"
-include "ftgo-consumer-service-contracts"
 
 include "ftgo-restaurant-service-api"
 include "ftgo-restaurant-service"
