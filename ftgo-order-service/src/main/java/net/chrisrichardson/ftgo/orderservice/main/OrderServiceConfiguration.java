@@ -1,6 +1,5 @@
 package net.chrisrichardson.ftgo.orderservice.main;
 
-import io.eventuate.jdbckafka.TramJdbcKafkaConfiguration;
 import net.chrisrichardson.eventstore.examples.customersandorders.commonswagger.CommonSwaggerConfiguration;
 import net.chrisrichardson.ftgo.orderservice.domain.OrderConfiguration;
 import net.chrisrichardson.ftgo.orderservice.grpc.GrpcConfiguration;
@@ -15,7 +14,6 @@ import org.springframework.context.annotation.Import;
 @EnableAutoConfiguration
 @ComponentScan
 @EntityScan
-@Import({OrderConfiguration.class, OrderWebConfiguration.class,
-        TramJdbcKafkaConfiguration.class, CommonSwaggerConfiguration.class, GrpcConfiguration.class})
+@Import({OrderConfiguration.class, OrderWebConfiguration.class, CommonSwaggerConfiguration.class, GrpcConfiguration.class})
 public class OrderServiceConfiguration {
 }

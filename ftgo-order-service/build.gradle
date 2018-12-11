@@ -8,13 +8,11 @@ buildscript {
         }
     }
     dependencies {
-        classpath "org.springframework.cloud:spring-cloud-contract-gradle-plugin:$springCloudContractDependenciesVersion"
         classpath "com.avast.gradle:gradle-docker-compose-plugin:$dockerComposePluginVersion"
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.0'
     }
 }
 
-apply plugin: 'spring-cloud-contract'
 apply plugin: 'docker-compose'
 apply plugin: 'com.google.protobuf'
 apply plugin:'io.spring.dependency-management'
@@ -27,8 +25,6 @@ dependencyManagement {
         mavenBom "org.springframework.cloud:spring-cloud-sleuth:${project.ext.springCloudSleuthVersion}"
     }
 }
-
-compileTestGroovy.enabled=false
 
 dockerCompose {
 
@@ -82,12 +78,6 @@ dependencies {
     compile project(":common-swagger")
     compile project(":ftgo-common-jpa")
 
-    compile "io.eventuate.tram.core:eventuate-tram-aggregate-domain-events:$eventuateTramVersion"
-    compile "io.eventuate.tram.core:eventuate-tram-jdbc-kafka:$eventuateTramVersion"
-    compile "io.eventuate.tram.core:eventuate-tram-commands:$eventuateTramVersion"
-
-    compile "io.eventuate.tram.sagas:eventuate-tram-sagas-simple-dsl:$eventuateTramSagasVersion"
-
     compile project(":ftgo-consumer-service-api")
     compile project(":ftgo-kitchen-service-api")
     compile project(":ftgo-restaurant-service-api")
@@ -109,30 +99,11 @@ dependencies {
 
     compile 'io.zipkin.brave:brave-bom:4.17.1'
 
-    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    testCompile "io.eventuate.tram.core:eventuate-tram-test-util:$eventuateTramVersion"
-
-    testCompile "io.eventuate.tram.sagas:eventuate-tram-sagas-in-memory:$eventuateTramSagasVersion"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
 
-    // Added this stuff
-
-    testCompile "net.chrisrichardson.ftgo:ftgo-accounting-service-contracts:unspecified:stubs"
-    testCompile "net.chrisrichardson.ftgo:ftgo-consumer-service-contracts:unspecified:stubs"
-    testCompile "net.chrisrichardson.ftgo:ftgo-kitchen-service-contracts:unspecified:stubs"
-    testCompile "org.springframework.cloud:spring-cloud-contract-wiremock"
-    testCompile "org.springframework.cloud:spring-cloud-starter-contract-stub-runner"
     testCompile 'io.rest-assured:rest-assured:3.0.6'
     testCompile 'io.rest-assured:spring-mock-mvc:3.0.6'
     testCompile "io.rest-assured:json-path:3.0.6"
 
-    testCompile "io.eventuate.tram.core:eventuate-tram-testing-support-spring-cloud-contract:$eventuateTramVersion"
-
-    testCompile "io.eventuate.tram.sagas:eventuate-tram-sagas-testing-support:$eventuateTramSagasVersion"
-
-    componentTestCompile 'info.cukes:cucumber-java:1.2.5'
-    componentTestCompile 'info.cukes:cucumber-junit:1.2.5'
-    componentTestCompile 'info.cukes:cucumber-spring:1.2.5'
     testCompile project(":ftgo-test-util")
-
 }
