@@ -1,8 +1,5 @@
 package net.chrisrichardson.ftgo.accountingservice.main;
 
-import io.eventuate.javaclient.driver.EventuateDriverConfiguration;
-import io.eventuate.jdbckafka.TramJdbcKafkaConfiguration;
-import io.eventuate.tram.commands.producer.TramCommandProducerConfiguration;
 import net.chrisrichardson.ftgo.accountingservice.domain.AccountConfiguration;
 import net.chrisrichardson.ftgo.accountingservice.web.AccountingWebConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -17,10 +14,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories
 @EntityScan
 @ComponentScan
-@Import({AccountConfiguration.class,
-        AccountingWebConfiguration.class,
-        TramCommandProducerConfiguration.class,
-        EventuateDriverConfiguration.class,
-        TramJdbcKafkaConfiguration.class})
+@Import({AccountConfiguration.class, AccountingWebConfiguration.class})
 public class AccountingServiceConfiguration {
 }
