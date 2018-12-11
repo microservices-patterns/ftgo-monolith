@@ -88,7 +88,6 @@ dependencies {
 
     compile "io.eventuate.tram.sagas:eventuate-tram-sagas-simple-dsl:$eventuateTramSagasVersion"
 
-    compile project(":ftgo-accounting-service-api")
     compile project(":ftgo-consumer-service-api")
     compile project(":ftgo-kitchen-service-api")
     compile project(":ftgo-restaurant-service-api")
