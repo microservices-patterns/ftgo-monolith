@@ -1,6 +1,5 @@
 package net.chrisrichardson.ftgo.kitchenservice.main;
 
-import io.eventuate.jdbckafka.TramJdbcKafkaConfiguration;
 import net.chrisrichardson.eventstore.examples.customersandorders.commonswagger.CommonSwaggerConfiguration;
 import net.chrisrichardson.ftgo.kitchenservice.domain.KitchenDomainConfiguration;
 import net.chrisrichardson.ftgo.kitchenservice.web.KitchenServiceWebConfiguration;
@@ -14,7 +13,6 @@ import org.springframework.context.annotation.Import;
 @ComponentScan
 @Import({KitchenServiceWebConfiguration.class,
         KitchenDomainConfiguration.class,
-        TramJdbcKafkaConfiguration.class,
         CommonSwaggerConfiguration.class})
 public class KitchenServiceConfiguration {
 }
