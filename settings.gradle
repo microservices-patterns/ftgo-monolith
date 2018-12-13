@@ -25,5 +25,3 @@ include "ftgo-service"
 
 include "ftgo-end-to-end-tests"
 
-include "ftgo-restaurant-service-aws-lambda"
-
