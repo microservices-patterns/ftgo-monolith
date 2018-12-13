@@ -76,6 +76,7 @@ dependencies {
 
     compile project(":common-swagger")
     compile project(":ftgo-common-jpa")
+    compile project(":ftgo-common")
 
     compile project(":ftgo-consumer-service-api")
     compile project(":ftgo-kitchen-service-api")

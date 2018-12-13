@@ -1,7 +1,7 @@
 package net.chrisrichardson.ftgo.orderservice.web;
 
-import io.eventuate.javaclient.commonimpl.JSonMapper;
-import net.chrisrichardson.ftgo.common.CommonJsonMapperInitializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.chrisrichardson.ftgo.common.MoneyModule;
 import net.chrisrichardson.ftgo.orderservice.OrderDetailsMother;
 import net.chrisrichardson.ftgo.orderservice.domain.OrderRepository;
 import net.chrisrichardson.ftgo.orderservice.domain.OrderService;
@@ -65,8 +65,9 @@ public class OrderControllerTest {
   }
 
   private StandaloneMockMvcBuilder configureControllers(Object... controllers) {
-    CommonJsonMapperInitializer.registerMoneyModule();
-    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(JSonMapper.objectMapper);
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new MoneyModule());
+    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(objectMapper);
     return MockMvcBuilders.standaloneSetup(controllers).setMessageConverters(converter);
   }
 

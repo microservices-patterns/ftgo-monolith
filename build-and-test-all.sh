@@ -30,8 +30,6 @@ echo KEEP_RUNNING=$KEEP_RUNNING
 
 # TODO Temporarily
 
-./build-contracts.sh
-
 ./gradlew testClasses
 
 ${DOCKER_COMPOSE?} down --remove-orphans -v
@@ -40,8 +38,6 @@ ${DOCKER_COMPOSE?} up -d --build ${DATABASE_SERVICES?}
 ./gradlew waitForMySql
 
 echo mysql is started
-
-${DOCKER_COMPOSE?} up -d --build eventuate-local-cdc-service tram-cdc-service
 
 
 if [ -z "$ASSEMBLE_ONLY" ] ; then
@@ -52,24 +48,7 @@ if [ -z "$ASSEMBLE_ONLY" ] ; then
 
   ./gradlew $* integrationTest
 
-  # Component tests need to use the per-service database schema
-
-
-  SPRING_DATASOURCE_URL=jdbc:mysql://${DOCKER_HOST_IP?}/ftgoorderservice ./gradlew :ftgo-order-service:cleanComponentTest :ftgo-order-service:componentTest
-
-  # Reset the DB/messages
-
-  ${DOCKER_COMPOSE?} down --remove-orphans -v
-
-  ${DOCKER_COMPOSE?} up -d ${DATABASE_SERVICES?}
-
-  ./gradlew waitForMySql
-
-  echo mysql is started
-
   ${DOCKER_COMPOSE?} up -d
-
-
 else
 
   ./gradlew $* assemble
@@ -81,7 +60,6 @@ else
   echo mysql is started
 
   ${DOCKER_COMPOSE?} up -d --build
-
 fi
 
 ./wait-for-services.sh

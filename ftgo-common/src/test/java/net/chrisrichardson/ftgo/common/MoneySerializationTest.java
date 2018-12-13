@@ -2,12 +2,12 @@ package net.chrisrichardson.ftgo.common;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.eventuate.javaclient.commonimpl.JSonMapper;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -16,9 +16,11 @@ import static org.junit.Assert.fail;
 
 public class MoneySerializationTest {
 
+  private static ObjectMapper objectMapper = new ObjectMapper();
+
   @BeforeClass
   public static void initialize() {
-    CommonJsonMapperInitializer.registerMoneyModule();
+    objectMapper.registerModule(new MoneyModule());
   }
 
 
@@ -59,27 +61,29 @@ public class MoneySerializationTest {
   }
 
   @Test
-  public void shouldSer() {
+  public void shouldSer() throws IOException {
     Money price = new Money("12.34");
     MoneyContainer mc = new MoneyContainer(price);
-    assertEquals("{\"price\":\"12.34\"}", JSonMapper.toJson(mc));
+    assertEquals("{\"price\":\"12.34\"}", objectMapper.writeValueAsString(mc));
   }
 
   @Test
-  public void shouldDe() {
+  public void shouldDe() throws IOException  {
     Money price = new Money("12.34");
     MoneyContainer mc = new MoneyContainer(price);
-    assertEquals(mc, JSonMapper.fromJson("{\"price\":\"12.34\"}", MoneyContainer.class));
+    assertEquals(mc, objectMapper.readValue("{\"price\":\"12.34\"}", MoneyContainer.class));
   }
 
   @Test
-  public void shouldFailToDe() {
+  public void shouldFailToDe() throws IOException  {
+    JsonMappingException jsonMappingException = null;
     try {
-      JSonMapper.fromJson("{\"price\": { \"amount\" : \"12.34\"} }", MoneyContainer.class);
+      objectMapper.readValue("{\"price\": { \"amount\" : \"12.34\"} }", MoneyContainer.class);
       fail("expected exception");
-    } catch (RuntimeException e) {
-      assertEquals(JsonMappingException.class, e.getCause().getClass());
+    } catch (JsonMappingException e) {
+      jsonMappingException = e;
     }
+    Assert.notNull(jsonMappingException);
   }
 
 
