@@ -3,7 +3,6 @@ apply plugin: FtgoServicePlugin
 dependencies {
     compile project(":ftgo-accounting-service")
     compile project(":ftgo-consumer-service")
-    compile project(":ftgo-kitchen-service")
     compile project(":ftgo-order-service")
     compile project(":ftgo-restaurant-service")
 
