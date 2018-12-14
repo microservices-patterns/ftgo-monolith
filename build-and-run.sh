@@ -11,7 +11,7 @@ docker-compose build
 docker-compose down -v
 docker-compose up -d --build mysql
 
-./wait-for-mysql.sh
+./gradlew waitForMySql
 
 docker-compose up -d
 
