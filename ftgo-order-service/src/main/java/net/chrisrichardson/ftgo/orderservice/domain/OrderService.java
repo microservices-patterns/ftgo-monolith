@@ -1,7 +1,6 @@
 package net.chrisrichardson.ftgo.orderservice.domain;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import net.chrisrichardson.ftgo.accountingservice.domain.AccountingService;
 import net.chrisrichardson.ftgo.common.Restaurant;
 import net.chrisrichardson.ftgo.common.RestaurantRepository;
 import net.chrisrichardson.ftgo.consumerservice.domain.ConsumerService;
@@ -32,19 +31,15 @@ public class OrderService {
 
   private ConsumerService consumerService;
 
-  private AccountingService accountingService;
-
   public OrderService(OrderRepository orderRepository,
                       RestaurantRepository restaurantRepository,
                       Optional<MeterRegistry> meterRegistry,
-                      ConsumerService consumerService,
-                      AccountingService accountingService) {
+                      ConsumerService consumerService) {
 
     this.orderRepository = orderRepository;
     this.restaurantRepository = restaurantRepository;
     this.meterRegistry = meterRegistry;
     this.consumerService = consumerService;
-    this.accountingService = accountingService;
   }
 
   @Transactional

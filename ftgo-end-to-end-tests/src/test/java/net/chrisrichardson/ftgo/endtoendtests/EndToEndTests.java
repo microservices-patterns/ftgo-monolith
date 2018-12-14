@@ -58,10 +58,6 @@ public class EndToEndTests {
     return baseUrl(applicationPort, "consumers", pathElements);
   }
 
-  private String accountingBaseUrl(String... pathElements) {
-    return baseUrl(applicationPort, "accounts", pathElements);
-  }
-
   private String restaurantBaseUrl(String... pathElements) {
     return baseUrl(applicationPort, "restaurants", pathElements);
   }
@@ -133,8 +129,6 @@ public class EndToEndTests {
   private void createOrder() {
     consumerId = createConsumer();
 
-    verifyAccountCreatedForConsumer(consumerId);
-
     restaurantId = createRestaurant();
 
     verifyRestaurantCreated(restaurantId);
@@ -189,16 +183,6 @@ public class EndToEndTests {
 
     assertNotNull(consumerId);
     return consumerId;
-  }
-
-  private void verifyAccountCreatedForConsumer(int consumerId) {
-    Eventually.eventually(() ->
-            given().
-                    when().
-                    get(accountingBaseUrl(Integer.toString(consumerId))).
-                    then().
-                    statusCode(200));
-
   }
 
   private int createRestaurant() {

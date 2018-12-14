@@ -9,8 +9,6 @@ include "ftgo-order-service"
 include "ftgo-order-service-api"
 include "ftgo-order-service-contracts"
 
-include "ftgo-accounting-service"
-
 include "ftgo-consumer-service-api"
 include "ftgo-consumer-service"
 

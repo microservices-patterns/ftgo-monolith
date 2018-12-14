@@ -1,7 +1,6 @@
 package net.chrisrichardson.ftgo.orderservice.domain;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import net.chrisrichardson.ftgo.accountingservice.domain.AccountingService;
 import net.chrisrichardson.ftgo.common.RestaurantRepository;
 import net.chrisrichardson.ftgo.consumerservice.domain.ConsumerService;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,13 +23,11 @@ public class OrderConfiguration {
   public OrderService orderService(RestaurantRepository restaurantRepository,
                                    OrderRepository orderRepository,
                                    Optional<MeterRegistry> meterRegistry,
-                                   ConsumerService consumerService,
-                                   AccountingService accountingService) {
+                                   ConsumerService consumerService) {
     return new OrderService(orderRepository,
             restaurantRepository,
             meterRegistry,
-            consumerService,
-            accountingService);
+            consumerService);
   }
 
   @Bean
