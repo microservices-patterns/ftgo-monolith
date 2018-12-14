@@ -17,7 +17,7 @@ include "ftgo-consumer-service"
 include "ftgo-restaurant-service-api"
 include "ftgo-restaurant-service"
 
-include "ftgo-service"
+include "ftgo-application"
 
 include "ftgo-end-to-end-tests"
 

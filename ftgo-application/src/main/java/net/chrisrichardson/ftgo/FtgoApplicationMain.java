@@ -17,9 +17,9 @@ import org.springframework.context.annotation.Import;
         ConsumerServiceConfiguration.class,
         OrderServiceConfiguration.class,
         RestaurantServiceConfiguration.class})
-public class FtgoServiceMain {
+public class FtgoApplicationMain {
 
   public static void main(String[] args) {
-    SpringApplication.run(FtgoServiceMain.class, args);
+    SpringApplication.run(FtgoApplicationMain.class, args);
   }
 }

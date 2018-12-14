@@ -8,8 +8,8 @@ services:
       - MYSQL_ROOT_PASSWORD=rootpassword
       - MYSQL_USER=mysqluser
       - MYSQL_PASSWORD=mysqlpw
-  ftgo-service:
-    build: ./ftgo-service
+  ftgo-application:
+    build: ./ftgo-application
     ports:
       - "8081:8080"
     depends_on:
