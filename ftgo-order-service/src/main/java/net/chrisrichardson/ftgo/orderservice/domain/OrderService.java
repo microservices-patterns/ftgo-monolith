@@ -50,7 +50,7 @@ public class OrderService {
 
     List<OrderLineItem> orderLineItems = makeOrderLineItems(lineItems, restaurant);
 
-    Order order = new Order(consumerId, restaurant.getId(), orderLineItems);
+    Order order = new Order(consumerId, restaurant, orderLineItems);
     orderRepository.save(order);
 
     OrderDetails orderDetails = new OrderDetails(consumerId, restaurantId, orderLineItems, order.getOrderTotal());

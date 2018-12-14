@@ -1,6 +1,7 @@
 package net.chrisrichardson.ftgo.orderservice.domain;
 
 import net.chrisrichardson.ftgo.common.Money;
+import net.chrisrichardson.ftgo.common.Restaurant;
 import net.chrisrichardson.ftgo.common.UnsupportedStateTransitionException;
 import net.chrisrichardson.ftgo.orderservice.api.events.*;
 
@@ -28,7 +29,9 @@ public class Order {
   private OrderState state;
 
   private Long consumerId;
-  private Long restaurantId;
+
+  @OneToOne(fetch = FetchType.LAZY)
+  private Restaurant restaurant;
 
   @Embedded
   private OrderLineItems orderLineItems;
@@ -45,9 +48,9 @@ public class Order {
   private Order() {
   }
 
-  public Order(long consumerId, long restaurantId, List<OrderLineItem> orderLineItems) {
+  public Order(long consumerId, Restaurant restaurant, List<OrderLineItem> orderLineItems) {
     this.consumerId = consumerId;
-    this.restaurantId = restaurantId;
+    this.restaurant = restaurant;
     this.orderLineItems = new OrderLineItems(orderLineItems);
     this.state = APPROVAL_PENDING;
   }
@@ -175,10 +178,9 @@ public class Order {
     return state;
   }
 
-  public long getRestaurantId() {
-    return restaurantId;
+  public Restaurant getRestaurant() {
+    return restaurant;
   }
-
 
   public Long getConsumerId() {
     return consumerId;

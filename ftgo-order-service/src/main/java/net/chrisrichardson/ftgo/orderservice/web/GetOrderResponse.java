@@ -6,14 +6,16 @@ public class GetOrderResponse {
   private long orderId;
   private String state;
   private Money orderTotal;
+  private String restaurantName;
 
   private GetOrderResponse() {
   }
 
-  public GetOrderResponse(long orderId, String state, Money orderTotal) {
+  public GetOrderResponse(long orderId, String state, Money orderTotal, String restaurantName) {
     this.orderId = orderId;
     this.state = state;
     this.orderTotal = orderTotal;
+    this.restaurantName = restaurantName;
   }
 
   public Money getOrderTotal() {
@@ -38,5 +40,9 @@ public class GetOrderResponse {
 
   public void setState(String state) {
     this.state = state;
+  }
+
+  public String getRestaurantName() {
+    return restaurantName;
   }
 }
