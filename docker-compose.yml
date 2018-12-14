@@ -25,20 +25,3 @@ services:
       SPRING_SLEUTH_ENABLED: "true"
       SPRING_SLEUTH_SAMPLER_PROBABILITY: 1
       SPRING_ZIPKIN_BASE_URL: http://zipkin:9411/
-  dynamodblocal:
-    build: ./dynamodblocal
-    ports:
-     - "8000:8000"
-    environment:
-      JAVA_OPTS: -Xmx128m
-
-  dynamodblocal-init:
-    build: ./dynamodblocal-init
-    depends_on:
-      - dynamodblocal
-    restart: on-failure
-    environment:
-      AWS_DYNAMODB_ENDPOINT_URL: http://dynamodblocal:8000
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-id_key}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-access_key}
-      AWS_REGION: ${AWS_REGION:-us-west-2}

@@ -6,11 +6,9 @@ DOCKER_REPO=msapatterns
 
 $PREFIX docker login -u ${DOCKER_USER_ID?} -p ${DOCKER_PASSWORD?}
 
-IMAGES="ftgo-application dynamodblocal-init mysql"
+IMAGES="ftgo-application mysql"
 
-cd dynamodblocal-init
 $PREFIX ./build-docker.sh
-$PREFIX docker tag test-dynamodblocal-init:latest ${DOCKER_COMPOSE_PREFIX?}dynamodblocal-init
 cd ..
 
 function tagAndPush() {
