@@ -1,12 +1,15 @@
 package net.chrisrichardson.ftgo.orderservice.domain;
 
 import net.chrisrichardson.ftgo.common.Money;
+import net.chrisrichardson.ftgo.common.NotYetImplementedException;
 import net.chrisrichardson.ftgo.common.Restaurant;
 import net.chrisrichardson.ftgo.common.UnsupportedStateTransitionException;
 import net.chrisrichardson.ftgo.orderservice.api.events.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static net.chrisrichardson.ftgo.orderservice.api.events.OrderState.APPROVED;
 import static net.chrisrichardson.ftgo.orderservice.api.events.OrderState.APPROVAL_PENDING;
@@ -26,7 +29,7 @@ public class Order {
   private Long version;
 
   @Enumerated(EnumType.STRING)
-  private OrderState state;
+  private OrderState orderState;
 
   private Long consumerId;
 
@@ -45,6 +48,17 @@ public class Order {
   @Embedded
   private Money orderMinimum = new Money(Integer.MAX_VALUE);
 
+  @Enumerated(EnumType.STRING)
+  private TicketState ticketState = TicketState.CREATE_PENDING;
+
+  private TicketState previousTicketState;
+
+  private LocalDateTime readyBy;
+  private LocalDateTime acceptTime;
+  private LocalDateTime preparingTime;
+  private LocalDateTime pickedUpTime;
+  private LocalDateTime readyForPickupTime;
+
   private Order() {
   }
 
@@ -52,7 +66,7 @@ public class Order {
     this.consumerId = consumerId;
     this.restaurant = restaurant;
     this.orderLineItems = new OrderLineItems(orderLineItems);
-    this.state = APPROVAL_PENDING;
+    this.orderState = APPROVAL_PENDING;
   }
 
   public Long getId() {
@@ -70,85 +84,85 @@ public class Order {
   }
 
   public void cancel() {
-    switch (state) {
+    switch (orderState) {
       case APPROVED:
-        this.state = OrderState.CANCEL_PENDING;
+        this.orderState = OrderState.CANCEL_PENDING;
         return;
       default:
-        throw new UnsupportedStateTransitionException(state);
+        throw new UnsupportedStateTransitionException(orderState);
     }
   }
 
   public void undoPendingCancel() {
-    switch (state) {
+    switch (orderState) {
       case CANCEL_PENDING:
-        this.state = OrderState.APPROVED;
+        this.orderState = OrderState.APPROVED;
         return;
       default:
-        throw new UnsupportedStateTransitionException(state);
+        throw new UnsupportedStateTransitionException(orderState);
     }
   }
 
   public void noteCancelled() {
-    switch (state) {
+    switch (orderState) {
       case CANCEL_PENDING:
-        this.state = OrderState.CANCELLED;
+        this.orderState = OrderState.CANCELLED;
         return;
       default:
-        throw new UnsupportedStateTransitionException(state);
+        throw new UnsupportedStateTransitionException(orderState);
     }
   }
 
   public void noteApproved() {
-    switch (state) {
+    switch (orderState) {
       case APPROVAL_PENDING:
-        this.state = APPROVED;
+        this.orderState = APPROVED;
         return;
       default:
-        throw new UnsupportedStateTransitionException(state);
+        throw new UnsupportedStateTransitionException(orderState);
     }
 
   }
 
   public void noteRejected() {
-    switch (state) {
+    switch (orderState) {
       case APPROVAL_PENDING:
-        this.state = REJECTED;
+        this.orderState = REJECTED;
         return;
       default:
-        throw new UnsupportedStateTransitionException(state);
+        throw new UnsupportedStateTransitionException(orderState);
     }
 
   }
 
   public LineItemQuantityChange revise(OrderRevision orderRevision) {
-    switch (state) {
+    switch (orderState) {
 
       case APPROVED:
         LineItemQuantityChange change = orderLineItems.lineItemQuantityChange(orderRevision);
         if (change.newOrderTotal.isGreaterThanOrEqual(orderMinimum)) {
           throw new OrderMinimumNotMetException();
         }
-        this.state = REVISION_PENDING;
+        this.orderState = REVISION_PENDING;
         return change;
 
       default:
-        throw new UnsupportedStateTransitionException(state);
+        throw new UnsupportedStateTransitionException(orderState);
     }
   }
 
   public void rejectRevision() {
-    switch (state) {
+    switch (orderState) {
       case REVISION_PENDING:
-        this.state = APPROVED;
+        this.orderState = APPROVED;
         return;
       default:
-        throw new UnsupportedStateTransitionException(state);
+        throw new UnsupportedStateTransitionException(orderState);
     }
   }
 
   public void confirmRevision(OrderRevision orderRevision) {
-    switch (state) {
+    switch (orderState) {
       case REVISION_PENDING:
         LineItemQuantityChange licd = orderLineItems.lineItemQuantityChange(orderRevision);
 
@@ -158,10 +172,10 @@ public class Order {
           orderLineItems.updateLineItems(orderRevision);
         }
 
-        this.state = APPROVED;
+        this.orderState = APPROVED;
         return;
       default:
-        throw new UnsupportedStateTransitionException(state);
+        throw new UnsupportedStateTransitionException(orderState);
     }
   }
 
@@ -174,8 +188,8 @@ public class Order {
     return orderLineItems.getLineItems();
   }
 
-  public OrderState getState() {
-    return state;
+  public OrderState getOrderState() {
+    return orderState;
   }
 
   public Restaurant getRestaurant() {
@@ -184,6 +198,132 @@ public class Order {
 
   public Long getConsumerId() {
     return consumerId;
+  }
+
+  public void confirmCreateTicket() {
+    switch (ticketState) {
+      case CREATE_PENDING:
+        ticketState = TicketState.AWAITING_ACCEPTANCE;
+        return;
+      default:
+        throw new UnsupportedStateTransitionException(ticketState);
+    }
+  }
+
+  public void cancelCreateTicket() {
+    throw new NotYetImplementedException();
+  }
+
+  public void acceptTicket(LocalDateTime readyBy) {
+    switch (ticketState) {
+      case AWAITING_ACCEPTANCE:
+        // Verify that readyBy is in the futurestate = TicketState.ACCEPTED;
+        this.acceptTime = LocalDateTime.now();
+        if (!acceptTime.isBefore(readyBy))
+          throw new IllegalArgumentException("readyBy is not in the future");
+        this.readyBy = readyBy;
+        return;
+      default:
+        throw new UnsupportedStateTransitionException(ticketState);
+    }
+  }
+
+  public void preparingTicket() {
+    switch (ticketState) {
+      case ACCEPTED:
+        this.ticketState = TicketState.PREPARING;
+        this.preparingTime = LocalDateTime.now();
+        return;
+      default:
+        throw new UnsupportedStateTransitionException(ticketState);
+    }
+  }
+
+  public void ticketReadyForPickup() {
+    switch (ticketState) {
+      case PREPARING:
+        this.ticketState = TicketState.READY_FOR_PICKUP;
+        this.readyForPickupTime = LocalDateTime.now();
+        return;
+      default:
+        throw new UnsupportedStateTransitionException(ticketState);
+    }
+  }
+
+  public void ticketPickedUp() {
+    switch (ticketState) {
+      case READY_FOR_PICKUP:
+        this.ticketState = TicketState.PICKED_UP;
+        this.pickedUpTime = LocalDateTime.now();
+        return;
+      default:
+        throw new UnsupportedStateTransitionException(ticketState);
+    }
+  }
+
+  public void cancelTicket() {
+    switch (ticketState) {
+      case AWAITING_ACCEPTANCE:
+      case ACCEPTED:
+        this.previousTicketState = ticketState;
+        this.ticketState = TicketState.CANCEL_PENDING;
+        return;
+      default:
+        throw new UnsupportedStateTransitionException(ticketState);
+    }
+  }
+
+  public void confirmCancelTicket() {
+    switch (ticketState) {
+      case CANCEL_PENDING:
+        this.ticketState = TicketState.CANCELLED;
+        return;
+      default:
+        throw new UnsupportedStateTransitionException(ticketState);
+    }
+  }
+
+  public void undoCancelTicket() {
+    switch (ticketState) {
+      case CANCEL_PENDING:
+        this.ticketState = this.previousTicketState;
+        return;
+      default:
+        throw new UnsupportedStateTransitionException(ticketState);
+
+    }
+  }
+
+  public void beginReviseTicket(Map<String, Integer> revisedLineItemQuantities) {
+    switch (ticketState) {
+      case AWAITING_ACCEPTANCE:
+      case ACCEPTED:
+        this.previousTicketState = ticketState;
+        this.ticketState = TicketState.REVISION_PENDING;
+        return;
+      default:
+        throw new UnsupportedStateTransitionException(ticketState);
+    }
+  }
+
+  public void undoBeginReviseTicket() {
+    switch (ticketState) {
+      case REVISION_PENDING:
+        this.ticketState = this.previousTicketState;
+        return;
+      default:
+        throw new UnsupportedStateTransitionException(ticketState);
+    }
+  }
+
+  public void confirmReviseTicket(Map<String, Integer> revisedLineItemQuantities) {
+    switch (ticketState) {
+      case REVISION_PENDING:
+        this.ticketState = this.previousTicketState;
+        return;
+      default:
+        throw new UnsupportedStateTransitionException(ticketState);
+    }
   }
 }
 

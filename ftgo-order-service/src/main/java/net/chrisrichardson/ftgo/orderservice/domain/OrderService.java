@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -56,6 +58,7 @@ public class OrderService {
     OrderDetails orderDetails = new OrderDetails(consumerId, restaurantId, orderLineItems, order.getOrderTotal());
 
     consumerService.validateOrderForConsumer(consumerId, orderDetails.getOrderTotal());
+    confirmCreateTicket(order.getId());
     approveOrder(order.getId());
 
     meterRegistry.ifPresent(mr -> mr.counter("placed_orders").increment());
@@ -72,10 +75,11 @@ public class OrderService {
 
   @Transactional
   public Order cancel(Long orderId) {
-    Order order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new OrderNotFoundException(orderId));
+    Order order = tryToFindOrder(orderId);
 
     beginCancel(orderId);
+    cancelTicket(order.getRestaurant().getId(), orderId);
+    confirmCancelTicket(order.getRestaurant().getId(), orderId);
     confirmCancelled(orderId);
 
     return order;
@@ -103,9 +107,11 @@ public class OrderService {
 
   @Transactional
   public Order reviseOrder(long orderId, OrderRevision orderRevision) {
-    Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
+    Order order = tryToFindOrder(orderId);
     Optional<RevisedOrder> revisedOrder = beginReviseOrder(orderId, orderRevision);
     revisedOrder.ifPresent(ro -> {
+      beginReviseTicket(order.getRestaurant().getId(), orderId, orderRevision.getRevisedLineItemQuantities());
+      confirmReviseTicket(order.getRestaurant().getId(), orderId, orderRevision.getRevisedLineItemQuantities());
       confirmRevision(orderId, orderRevision);
     });
     return order;
@@ -117,5 +123,45 @@ public class OrderService {
 
   public void confirmRevision(long orderId, OrderRevision revision) {
     updateOrder(orderId, order -> order.confirmRevision(revision));
+  }
+
+  public void confirmCreateTicket(Long orderId) {
+    tryToFindOrder(orderId).confirmCreateTicket();
+  }
+
+  public void cancelCreateTicket(Long orderId) {
+    tryToFindOrder(orderId).cancelCreateTicket();
+  }
+
+  public void acceptTicket(long orderId, LocalDateTime readyBy) {
+    tryToFindOrder(orderId).acceptTicket(readyBy);
+  }
+
+  private void cancelTicket(long restaurantId, long orderId) {
+    tryToFindOrder(orderId).cancelTicket();
+  }
+
+  public void confirmCancelTicket(long restaurantId, long orderId) {
+    tryToFindOrder(orderId).confirmCancelTicket();
+  }
+
+  public void undoCancelTicket(long restaurantId, long orderId) {
+    tryToFindOrder(orderId).undoCancelTicket();
+  }
+
+  public void beginReviseTicket(long restaurantId, Long orderId, Map<String, Integer> revisedLineItemQuantities) {
+    tryToFindOrder(orderId).beginReviseTicket(revisedLineItemQuantities);
+  }
+
+  public void undoBeginReviseTicket(long restaurantId, Long orderId) {
+    tryToFindOrder(orderId).undoBeginReviseTicket();
+  }
+
+  public void confirmReviseTicket(long restaurantId, long orderId, Map<String, Integer> revisedLineItemQuantities) {
+    tryToFindOrder(orderId).confirmReviseTicket(revisedLineItemQuantities);
+  }
+
+  private Order tryToFindOrder(Long orderId) {
+    return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
   }
 }

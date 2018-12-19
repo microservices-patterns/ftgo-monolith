@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -57,7 +56,7 @@ public class OrderController {
 
   private GetOrderResponse makeGetOrderResponse(Order order) {
     return new GetOrderResponse(order.getId(),
-            order.getState().name(),
+            order.getOrderState().name(),
             order.getOrderTotal(),
             order.getRestaurant().getName());
   }
