@@ -1,0 +1,10 @@
+apply plugin: FtgoServicePlugin
+
+dependencies {
+    compile project(":ftgo-consumer-service")
+    compile project(":ftgo-order-service")
+    compile project(":ftgo-restaurant-service")
+
+    compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
+    compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+}

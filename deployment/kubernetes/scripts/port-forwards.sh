@@ -14,7 +14,7 @@ doforward() {
 }
 
 
-doforward 'ftgo-service' 8081 8080
+doforward 'ftgo-application' 8081
 
 exit 0
 

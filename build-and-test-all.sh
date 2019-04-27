@@ -2,7 +2,7 @@
 
 KEEP_RUNNING=
 ASSEMBLE_ONLY=
-DATABASE_SERVICES="dynamodblocal mysql dynamodblocal-init"
+DATABASE_SERVICES="mysql"
 
 if [ -z "$DOCKER_COMPOSE" ] ; then
     DOCKER_COMPOSE=docker-compose

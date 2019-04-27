@@ -23,7 +23,7 @@ public class Restaurant {
   @CollectionTable(name = "restaurant_menu_items")
   private List<MenuItem> menuItems;
 
-  private Restaurant() {
+  public Restaurant() {
   }
 
   public Restaurant(String name, RestaurantMenu menu) {
