@@ -8,4 +8,6 @@ dependencies {
 
     compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
     compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+
+    testCompile project(":ftgo-end-to-end-tests-common")
 }
