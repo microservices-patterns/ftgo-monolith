@@ -107,6 +107,14 @@ public abstract class AbstractEndToEndTests {
 
     assertOrderAssignedToCourier();
 
+    startPreparingOrder();
+
+    orderReadyforPickup();
+
+    pickupOrder();
+
+    deliverOrder();
+
   }
 
   private void reviseOrder() {
@@ -312,6 +320,38 @@ public abstract class AbstractEndToEndTests {
       assertThat(assignedCourier).isGreaterThan(0);
     });
 
+  }
+
+  private void startPreparingOrder() {
+    given().
+            when().
+            post(orderBaseUrl(Long.toString(orderId), "preparing")).
+            then().
+            statusCode(200);
+  }
+
+  private void orderReadyforPickup() {
+    given().
+            when().
+            post(orderBaseUrl(Long.toString(orderId), "ready")).
+            then().
+            statusCode(200);
+  }
+
+  private void pickupOrder() {
+    given().
+            when().
+            post(orderBaseUrl(Long.toString(orderId), "pickedup")).
+            then().
+            statusCode(200);
+  }
+
+  private void deliverOrder() {
+    given().
+            when().
+            post(orderBaseUrl(Long.toString(orderId), "delivered")).
+            then().
+            statusCode(200);
   }
 
   public abstract String getHost();

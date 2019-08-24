@@ -5,6 +5,7 @@ import net.chrisrichardson.ftgo.domain.OrderRepository;
 import net.chrisrichardson.ftgo.domain.OrderRevision;
 import net.chrisrichardson.ftgo.orderservice.api.web.CreateOrderRequest;
 import net.chrisrichardson.ftgo.orderservice.api.web.CreateOrderResponse;
+import net.chrisrichardson.ftgo.orderservice.api.web.OrderAcceptance;
 import net.chrisrichardson.ftgo.orderservice.api.web.ReviseOrderRequest;
 import net.chrisrichardson.ftgo.orderservice.domain.OrderNotFoundException;
 import net.chrisrichardson.ftgo.orderservice.domain.OrderService;
@@ -84,6 +85,36 @@ public class OrderController {
     } catch (OrderNotFoundException e) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+  }
+
+  @RequestMapping(path="/{orderId}/accept", method= RequestMethod.POST)
+  public ResponseEntity<String> accept(@PathVariable long orderId, @RequestBody OrderAcceptance orderAcceptance) {
+    orderService.accept(orderId, orderAcceptance.getReadyBy());
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @RequestMapping(path="/{orderId}/preparing", method= RequestMethod.POST)
+  public ResponseEntity<String> preparing(@PathVariable long orderId) {
+    orderService.notePreparing(orderId);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @RequestMapping(path="/{orderId}/ready", method= RequestMethod.POST)
+  public ResponseEntity<String> ready(@PathVariable long orderId) {
+    orderService.noteReadyForPickup(orderId);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @RequestMapping(path="/{orderId}/pickedup", method= RequestMethod.POST)
+  public ResponseEntity<String> pickedup(@PathVariable long orderId) {
+    orderService.notePickedUp(orderId);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @RequestMapping(path="/{orderId}/delivered", method= RequestMethod.POST)
+  public ResponseEntity<String> delivered(@PathVariable long orderId) {
+    orderService.noteDelivered(orderId);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
 }

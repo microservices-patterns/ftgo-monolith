@@ -8,8 +8,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static net.chrisrichardson.ftgo.domain.OrderState.*;
-import static net.chrisrichardson.ftgo.domain.TicketState.ACCEPTED;
-import static net.chrisrichardson.ftgo.domain.TicketState.AWAITING_ACCEPTANCE;
 
 
 @Entity
@@ -42,12 +40,8 @@ public class Order {
   private PaymentInformation paymentInformation;
 
   @Embedded
+  @AttributeOverride(name="amount", column = @Column(name="order_minimum"))
   private Money orderMinimum = new Money(Integer.MAX_VALUE);
-
-  @Enumerated(EnumType.STRING)
-  private TicketState ticketState = AWAITING_ACCEPTANCE;
-
-  private TicketState previousTicketState;
 
   private LocalDateTime readyBy;
   private LocalDateTime acceptTime;
@@ -58,9 +52,6 @@ public class Order {
   @ManyToOne
   private Courier assignedCourier;
 
-  @Enumerated(EnumType.STRING)
-  private DeliveryState deliveryState = DeliveryState.PENDING;
-
   private Order() {
   }
 
@@ -68,7 +59,7 @@ public class Order {
     this.consumerId = consumerId;
     this.restaurant = restaurant;
     this.orderLineItems = new OrderLineItems(orderLineItems);
-    this.orderState = APPROVAL_PENDING;
+    this.orderState = APPROVED;
   }
 
   public Long getId() {
@@ -91,39 +82,7 @@ public class Order {
       throw new UnsupportedStateTransitionException(orderState);
     }
 
-    switch (ticketState) {
-      case AWAITING_ACCEPTANCE:
-      case ACCEPTED:
-        break;
-      default:
-        throw new UnsupportedStateTransitionException(ticketState);
-    }
-
-    this.ticketState = TicketState.CANCELLED;
-
     this.orderState = CANCELLED;
-
-  }
-
-  public void noteApproved() {
-    switch (orderState) {
-      case APPROVAL_PENDING:
-        this.orderState = APPROVED;
-        return;
-      default:
-        throw new UnsupportedStateTransitionException(orderState);
-    }
-
-  }
-
-  public void noteRejected() {
-    switch (orderState) {
-      case APPROVAL_PENDING:
-        this.orderState = REJECTED;
-        return;
-      default:
-        throw new UnsupportedStateTransitionException(orderState);
-    }
 
   }
 
@@ -135,10 +94,6 @@ public class Order {
       }
     } else {
       throw new UnsupportedStateTransitionException(orderState);
-    }
-
-    if (this.ticketState != AWAITING_ACCEPTANCE && this.ticketState != ACCEPTED) {
-      throw new UnsupportedStateTransitionException(this.ticketState);
     }
 
     orderRevision.getDeliveryInformation().ifPresent(newDi -> this.deliveryInformation = newDi);
@@ -176,60 +131,67 @@ public class Order {
   }
 
   public void acceptTicket(LocalDateTime readyBy) {
-    if (ticketState == AWAITING_ACCEPTANCE) {
+    if (orderState == APPROVED) {
       this.acceptTime = LocalDateTime.now();
       if (!acceptTime.isBefore(readyBy))
         throw new IllegalArgumentException("readyBy is not in the future");
       this.readyBy = readyBy;
-      this.ticketState = ACCEPTED;
+      this.orderState = ACCEPTED;
       return;
     }
-    throw new UnsupportedStateTransitionException(ticketState);
+    throw new UnsupportedStateTransitionException(orderState);
   }
 
-  public void preparingTicket() {
-    switch (ticketState) {
+  public void notePreparing() {
+    switch (orderState) {
       case ACCEPTED:
-        this.ticketState = TicketState.PREPARING;
+        this.orderState = orderState.PREPARING;
         this.preparingTime = LocalDateTime.now();
         return;
       default:
-        throw new UnsupportedStateTransitionException(ticketState);
+        throw new UnsupportedStateTransitionException(orderState);
     }
   }
 
-  public void ticketReadyForPickup() {
-    switch (ticketState) {
+  public void noteReadyForPickup() {
+    switch (orderState) {
       case PREPARING:
-        this.ticketState = TicketState.READY_FOR_PICKUP;
+        this.orderState = OrderState.READY_FOR_PICKUP;
         this.readyForPickupTime = LocalDateTime.now();
         return;
       default:
-        throw new UnsupportedStateTransitionException(ticketState);
+        throw new UnsupportedStateTransitionException(orderState);
     }
   }
 
-  public void ticketPickedUp() {
-    switch (ticketState) {
+  public void notePickedUp() {
+    switch (orderState) {
       case READY_FOR_PICKUP:
-        this.ticketState = TicketState.PICKED_UP;
+        this.orderState = OrderState.PICKED_UP;
         this.pickedUpTime = LocalDateTime.now();
         return;
       default:
-        throw new UnsupportedStateTransitionException(ticketState);
+        throw new UnsupportedStateTransitionException(orderState);
     }
   }
 
-  public void schedule(LocalDateTime readyBy, Courier assignedCourier) {
-    if (deliveryState == DeliveryState.PENDING) {
-      this.assignedCourier = assignedCourier;
-      this.deliveryState = DeliveryState.SCHEDULED;
-    } else
-      throw new UnsupportedStateTransitionException(deliveryState);
+  public void schedule(Courier assignedCourier) {
+    this.assignedCourier = assignedCourier;
   }
 
   public Courier getAssignedCourier() {
     return assignedCourier;
+  }
+
+  public void noteDelivered() {
+    switch (orderState) {
+      case PICKED_UP:
+        this.orderState = OrderState.DELIVERED;
+        this.pickedUpTime = LocalDateTime.now();
+        return;
+      default:
+        throw new UnsupportedStateTransitionException(orderState);
+    }
   }
 }
 

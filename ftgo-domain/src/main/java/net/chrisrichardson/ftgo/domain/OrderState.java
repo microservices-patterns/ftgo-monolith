@@ -1,9 +1,7 @@
 package net.chrisrichardson.ftgo.domain;
 
 public enum OrderState {
-  APPROVAL_PENDING,
   APPROVED,
-  REJECTED,
-  CANCEL_PENDING,
+  ACCEPTED, PREPARING, READY_FOR_PICKUP, PICKED_UP, DELIVERED,
   CANCELLED,
 }

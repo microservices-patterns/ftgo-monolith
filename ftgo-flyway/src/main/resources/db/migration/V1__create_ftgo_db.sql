@@ -51,16 +51,14 @@ create table orders
   delivery_address_street2 varchar(255),
   delivery_address_zip     varchar(255),
   delivery_time            datetime,
-  delivery_state           varchar(255),
-  amount                   decimal(19, 2),
   order_state              varchar(255),
+  order_minimum            decimal(19, 2),
   payment_token            varchar(255),
   picked_up_time           datetime,
   preparing_time           datetime,
   previous_ticket_state    integer,
   ready_by                 datetime,
   ready_for_pickup_time    datetime,
-  ticket_state             varchar(255),
   version                  bigint,
   assigned_courier_id      bigint,
   restaurant_id            bigint,
@@ -72,7 +70,7 @@ create table restaurant_menu_items
   restaurant_id bigint not null,
   id            varchar(255),
   name          varchar(255),
-  amount        decimal(19, 2)
+  price        decimal(19, 2)
 ) engine = InnoDB;
 
 create table restaurants

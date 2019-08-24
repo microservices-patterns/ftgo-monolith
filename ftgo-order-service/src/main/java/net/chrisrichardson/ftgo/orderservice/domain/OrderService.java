@@ -49,13 +49,18 @@ public class OrderService {
     Restaurant restaurant = restaurantRepository.findById(restaurantId)
             .orElseThrow(() -> new RestaurantNotFoundException(restaurantId));
 
+
     List<OrderLineItem> orderLineItems = makeOrderLineItems(lineItems, restaurant);
 
     Order order = new Order(consumerId, restaurant, orderLineItems);
-    orderRepository.save(order);
 
     consumerService.validateOrderForConsumer(consumerId, order.getOrderTotal());
-    approveOrder(order.getId());
+
+    // TODO - charge a credit card too
+
+    orderRepository.save(order);
+
+    meterRegistry.ifPresent(mr1 -> mr1.counter("approved_orders").increment());
 
     meterRegistry.ifPresent(mr -> mr.counter("placed_orders").increment());
 
@@ -76,14 +81,6 @@ public class OrderService {
     order.cancel();
 
     return order;
-  }
-
-  public void approveOrder(long orderId) {
-    orderRepository.findById(orderId).map(order -> {
-      ((Consumer<Order>) Order::noteApproved).accept(order);
-      return order;
-    }).orElseThrow(() -> new OrderNotFoundException(orderId));
-    meterRegistry.ifPresent(mr -> mr.counter("approved_orders").increment());
   }
 
   @Transactional
@@ -108,7 +105,7 @@ public class OrderService {
     courier.addAction(Action.makePickup(order));
     courier.addAction(Action.makeDropoff(order, readyBy.plusMinutes(30)));
 
-    order.schedule(readyBy, courier);
+    order.schedule(courier);
 
   }
 
@@ -117,4 +114,27 @@ public class OrderService {
     return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
   }
 
+  @Transactional
+  public void notePreparing(long orderId) {
+    Order order = tryToFindOrder(orderId);
+    order.notePreparing();
+  }
+
+  @Transactional
+  public void noteReadyForPickup(long orderId) {
+    Order order = tryToFindOrder(orderId);
+    order.noteReadyForPickup();
+  }
+
+  @Transactional
+  public void notePickedUp(long orderId) {
+    Order order = tryToFindOrder(orderId);
+    order.notePickedUp();
+  }
+
+  @Transactional
+  public void noteDelivered(long orderId) {
+    Order order = tryToFindOrder(orderId);
+    order.noteDelivered();
+  }
 }

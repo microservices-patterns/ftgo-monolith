@@ -15,10 +15,5 @@ public class TicketController {
     this.orderService = orderService;
   }
 
-  @RequestMapping(path="/orders/{orderId}/accept", method= RequestMethod.POST)
-  public ResponseEntity<String> acceptTicket(@PathVariable long orderId, @RequestBody OrderAcceptance ticketAcceptance) {
-    orderService.accept(orderId, ticketAcceptance.getReadyBy());
-    return new ResponseEntity<>(HttpStatus.OK);
-  }
 
 }

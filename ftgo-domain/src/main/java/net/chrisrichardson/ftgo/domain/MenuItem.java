@@ -5,9 +5,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 
 @Embeddable
 @Access(AccessType.FIELD)
@@ -15,6 +13,10 @@ public class MenuItem {
 
   private String id;
   private String name;
+
+
+  @Embedded
+  @AttributeOverride(name="amount", column = @Column(name="price"))
   private Money price;
 
   private MenuItem() {
