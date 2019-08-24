@@ -1,6 +1,6 @@
 package net.chrisrichardson.ftgo.restaurantservice.web;
 
-import net.chrisrichardson.ftgo.common.Restaurant;
+import net.chrisrichardson.ftgo.domain.Restaurant;
 import net.chrisrichardson.ftgo.restaurantservice.domain.RestaurantService;
 import net.chrisrichardson.ftgo.restaurantservice.events.CreateRestaurantRequest;
 import org.springframework.beans.factory.annotation.Autowired;

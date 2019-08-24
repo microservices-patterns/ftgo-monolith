@@ -1,9 +1,13 @@
 package net.chrisrichardson.ftgo.orderservice.web;
 
+import net.chrisrichardson.ftgo.domain.Order;
+import net.chrisrichardson.ftgo.domain.OrderRepository;
+import net.chrisrichardson.ftgo.domain.OrderRevision;
 import net.chrisrichardson.ftgo.orderservice.api.web.CreateOrderRequest;
 import net.chrisrichardson.ftgo.orderservice.api.web.CreateOrderResponse;
 import net.chrisrichardson.ftgo.orderservice.api.web.ReviseOrderRequest;
-import net.chrisrichardson.ftgo.orderservice.domain.*;
+import net.chrisrichardson.ftgo.orderservice.domain.OrderNotFoundException;
+import net.chrisrichardson.ftgo.orderservice.domain.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -58,7 +62,8 @@ public class OrderController {
     return new GetOrderResponse(order.getId(),
             order.getOrderState().name(),
             order.getOrderTotal(),
-            order.getRestaurant().getName());
+            order.getRestaurant().getName(),
+            order.getAssignedCourier() == null ? null : order.getAssignedCourier().getId());
   }
 
   @RequestMapping(path = "/{orderId}/cancel", method = RequestMethod.POST)

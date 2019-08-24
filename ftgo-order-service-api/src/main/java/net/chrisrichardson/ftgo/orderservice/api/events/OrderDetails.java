@@ -9,7 +9,7 @@ import java.util.List;
 
 public class OrderDetails {
 
-  private List<OrderLineItem> lineItems;
+  private List<OrderLineItemDTO> lineItems;
   private Money orderTotal;
 
   private long restaurantId;
@@ -26,7 +26,7 @@ public class OrderDetails {
     this.orderTotal = orderTotal;
   }
 
-  public OrderDetails(long consumerId, long restaurantId, List<OrderLineItem> lineItems, Money orderTotal) {
+  public OrderDetails(long consumerId, long restaurantId, List<OrderLineItemDTO> lineItems, Money orderTotal) {
     this.consumerId = consumerId;
     this.restaurantId = restaurantId;
     this.lineItems = lineItems;
@@ -38,7 +38,7 @@ public class OrderDetails {
     return ToStringBuilder.reflectionToString(this);
   }
 
-  public List<OrderLineItem> getLineItems() {
+  public List<OrderLineItemDTO> getLineItems() {
     return lineItems;
   }
 
@@ -51,7 +51,7 @@ public class OrderDetails {
   }
 
 
-  public void setLineItems(List<OrderLineItem> lineItems) {
+  public void setLineItems(List<OrderLineItemDTO> lineItems) {
     this.lineItems = lineItems;
   }
 

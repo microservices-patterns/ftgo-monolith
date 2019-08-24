@@ -1,6 +1,7 @@
 dependencies {
     compile project(":common-swagger")
     compile project(":ftgo-consumer-service-api")
+    compile project(":ftgo-domain")
 
     compile "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
     compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"

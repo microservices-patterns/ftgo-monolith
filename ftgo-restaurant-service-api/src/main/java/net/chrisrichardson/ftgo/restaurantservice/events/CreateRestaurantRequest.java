@@ -1,13 +1,12 @@
 package net.chrisrichardson.ftgo.restaurantservice.events;
 
-import net.chrisrichardson.ftgo.common.RestaurantMenu;
 
 public class CreateRestaurantRequest {
 
   private String name;
-  private RestaurantMenu menu;
+  private RestaurantMenuDTO menu;
 
-  public CreateRestaurantRequest(String name, RestaurantMenu menu) {
+  public CreateRestaurantRequest(String name, RestaurantMenuDTO menu) {
     this.name = name;
     this.menu = menu;
   }
@@ -20,11 +19,11 @@ public class CreateRestaurantRequest {
     this.name = name;
   }
 
-  public RestaurantMenu getMenu() {
+  public RestaurantMenuDTO getMenu() {
     return menu;
   }
 
-  public void setMenu(RestaurantMenu menu) {
+  public void setMenu(RestaurantMenuDTO menu) {
     this.menu = menu;
   }
 

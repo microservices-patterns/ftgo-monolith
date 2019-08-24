@@ -1,15 +1,12 @@
 package net.chrisrichardson.ftgo.restaurantservice.domain;
 
-import org.springframework.boot.autoconfigure.domain.EntityScan;
+import net.chrisrichardson.ftgo.domain.DomainConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.context.annotation.Import;
 
 @Configuration
-@EnableJpaRepositories
-@EnableTransactionManagement
-@EntityScan
+@Import(DomainConfiguration.class)
 public class RestaurantServiceDomainConfiguration {
 
   @Bean

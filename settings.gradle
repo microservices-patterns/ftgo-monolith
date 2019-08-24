@@ -3,6 +3,7 @@ include "common-swagger"
 include "ftgo-test-util"
 include "ftgo-common"
 include "ftgo-common-jpa"
+include "ftgo-domain"
 
 
 include "ftgo-order-service"
@@ -14,6 +15,9 @@ include "ftgo-consumer-service"
 
 include "ftgo-restaurant-service-api"
 include "ftgo-restaurant-service"
+
+include "ftgo-courier-service-api"
+include "ftgo-courier-service"
 
 include "ftgo-application"
 

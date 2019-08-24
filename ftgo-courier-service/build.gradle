@@ -1,0 +1,21 @@
+dependencies {
+    compile project(":ftgo-courier-service-api")
+
+    compile project(":common-swagger")
+    compile project(":ftgo-domain")
+
+    compile "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
+    compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
+    compile "io.micrometer:micrometer-registry-prometheus:$micrometerVersion"
+    compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    compile 'javax.el:javax.el-api:2.2.5'
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+
+    testCompile 'io.rest-assured:rest-assured:3.0.6'
+    testCompile 'io.rest-assured:spring-mock-mvc:3.0.6'
+    testCompile "io.rest-assured:json-path:3.0.6"
+
+    testCompile project(":ftgo-test-util")
+
+}

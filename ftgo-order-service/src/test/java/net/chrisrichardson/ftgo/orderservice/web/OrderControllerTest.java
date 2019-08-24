@@ -2,8 +2,8 @@ package net.chrisrichardson.ftgo.orderservice.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chrisrichardson.ftgo.common.MoneyModule;
+import net.chrisrichardson.ftgo.domain.OrderRepository;
 import net.chrisrichardson.ftgo.orderservice.OrderDetailsMother;
-import net.chrisrichardson.ftgo.orderservice.domain.OrderRepository;
 import net.chrisrichardson.ftgo.orderservice.domain.OrderService;
 import org.junit.Before;
 import org.junit.Test;

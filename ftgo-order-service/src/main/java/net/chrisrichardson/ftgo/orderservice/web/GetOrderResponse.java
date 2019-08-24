@@ -7,15 +7,25 @@ public class GetOrderResponse {
   private String state;
   private Money orderTotal;
   private String restaurantName;
+  private Long assignedCourier;
 
   private GetOrderResponse() {
   }
 
-  public GetOrderResponse(long orderId, String state, Money orderTotal, String restaurantName) {
+  public Long getAssignedCourier() {
+    return assignedCourier;
+  }
+
+  public void setAssignedCourier(Long assignedCourier) {
+    this.assignedCourier = assignedCourier;
+  }
+
+  public GetOrderResponse(long orderId, String state, Money orderTotal, String restaurantName, Long assignedCourier) {
     this.orderId = orderId;
     this.state = state;
     this.orderTotal = orderTotal;
     this.restaurantName = restaurantName;
+    this.assignedCourier = assignedCourier;
   }
 
   public Money getOrderTotal() {

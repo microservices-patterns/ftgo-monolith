@@ -1,20 +1,13 @@
 package net.chrisrichardson.ftgo.orderservice;
 
 import net.chrisrichardson.ftgo.common.Money;
-import net.chrisrichardson.ftgo.common.Restaurant;
-import net.chrisrichardson.ftgo.common.RestaurantMenu;
-import net.chrisrichardson.ftgo.orderservice.api.events.OrderDetails;
-import net.chrisrichardson.ftgo.orderservice.api.events.OrderLineItem;
-import net.chrisrichardson.ftgo.orderservice.api.events.OrderState;
-import net.chrisrichardson.ftgo.orderservice.domain.Order;
+import net.chrisrichardson.ftgo.domain.*;
 import net.chrisrichardson.ftgo.orderservice.web.MenuItemIdAndQuantity;
 
 import java.util.Collections;
 import java.util.List;
 
-import static net.chrisrichardson.ftgo.orderservice.RestaurantMother.AJANTA_ID;
-import static net.chrisrichardson.ftgo.orderservice.RestaurantMother.CHICKEN_VINDALOO;
-import static net.chrisrichardson.ftgo.orderservice.RestaurantMother.CHICKEN_VINDALOO_PRICE;
+import static net.chrisrichardson.ftgo.orderservice.RestaurantMother.*;
 
 public class OrderDetailsMother {
 
@@ -32,8 +25,6 @@ public class OrderDetailsMother {
   }
 
   public static final Money CHICKEN_VINDALOO_ORDER_TOTAL = CHICKEN_VINDALOO_PRICE.multiply(5);
-  public static final OrderDetails CHICKEN_VINDALOO_ORDER_DETAILS = new OrderDetails(CONSUMER_ID, AJANTA_ID,
-          chickenVindalooLineItems(), CHICKEN_VINDALOO_ORDER_TOTAL);
 
   public static long ORDER_ID = 99L;
 

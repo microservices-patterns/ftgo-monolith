@@ -1,21 +1,31 @@
 package net.chrisrichardson.ftgo.endtoendtests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.ObjectMapperConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
-import net.chrisrichardson.ftgo.common.*;
+import io.eventuate.util.test.async.Eventually;
+import net.chrisrichardson.ftgo.common.Money;
+import net.chrisrichardson.ftgo.common.MoneyModule;
+import net.chrisrichardson.ftgo.common.PersonName;
 import net.chrisrichardson.ftgo.consumerservice.api.web.CreateConsumerRequest;
+import net.chrisrichardson.ftgo.courierservice.api.CourierAvailability;
 import net.chrisrichardson.ftgo.orderservice.api.web.CreateOrderRequest;
+import net.chrisrichardson.ftgo.orderservice.api.web.OrderAcceptance;
 import net.chrisrichardson.ftgo.orderservice.api.web.ReviseOrderRequest;
 import net.chrisrichardson.ftgo.restaurantservice.events.CreateRestaurantRequest;
-import io.eventuate.util.test.async.Eventually;
+import net.chrisrichardson.ftgo.restaurantservice.events.MenuItemDTO;
+import net.chrisrichardson.ftgo.restaurantservice.events.RestaurantMenuDTO;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 
 import static com.jayway.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -34,8 +44,10 @@ public class EndToEndTests {
   private int orderId;
   private final Money priceOfChickenVindaloo = new Money("12.34");
   private static ObjectMapper objectMapper = new ObjectMapper();
+  private long courierId;
 
   private String baseUrl(int port, String path, String... pathElements) {
+    assertNotNull("host", host);
     StringBuilder sb = new StringBuilder("http://");
     sb.append(host);
     sb.append(":");
@@ -70,6 +82,8 @@ public class EndToEndTests {
   @BeforeClass
   public static void initialize() {
     objectMapper.registerModule(new MoneyModule());
+    objectMapper.registerModule(new JavaTimeModule());
+    objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     RestAssured.config = RestAssuredConfig.config().objectMapperConfig(new ObjectMapperConfig().jackson2ObjectMapperFactory(
             (aClass, s) -> objectMapper
@@ -78,13 +92,27 @@ public class EndToEndTests {
   }
 
   @Test
-  public void shouldCreateOrder() {
+  public void shouldCreateReviseAndCancelOrder() {
 
     createOrder();
 
     reviseOrder();
 
     cancelOrder();
+
+  }
+
+  @Test
+  public void shouldDeliverOrder() {
+
+    createOrder();
+
+    noteCourierAvailable();
+
+    acceptOrder();
+
+    assertOrderAssignedToCourier();
+
   }
 
   private void reviseOrder() {
@@ -191,7 +219,7 @@ public class EndToEndTests {
     Integer restaurantId =
             given().
                     body(new CreateRestaurantRequest(RESTAURANT_NAME,
-                            new RestaurantMenu(Collections.singletonList(new MenuItem(CHICKED_VINDALOO_MENU_ITEM_ID, "Chicken Vindaloo", priceOfChickenVindaloo))))).
+                            new RestaurantMenuDTO(Collections.singletonList(new MenuItemDTO(CHICKED_VINDALOO_MENU_ITEM_ID, "Chicken Vindaloo", priceOfChickenVindaloo))))).
                     contentType("application/json").
                     when().
                     post(restaurantBaseUrl()).
@@ -255,4 +283,41 @@ public class EndToEndTests {
       assertNotNull(state);
     });
   }
+
+  private void noteCourierAvailable() {
+    courierId = System.currentTimeMillis();
+    given().
+            body(new CourierAvailability(true)).
+            contentType("application/json").
+            when().
+            post(baseUrl(applicationPort, "couriers", Long.toString(courierId), "availability")).
+            then().
+            statusCode(200);
+  }
+
+  private void acceptOrder() {
+    courierId = System.currentTimeMillis();
+    given().
+            body(new OrderAcceptance(LocalDateTime.now().plusHours(9))).
+            contentType("application/json").
+            when().
+            post(orderBaseUrl(Long.toString(orderId), "accept")).
+            then().
+            statusCode(200);
+  }
+
+  private void assertOrderAssignedToCourier() {
+    Eventually.eventually(() -> {
+      long assignedCourier = given().
+              when().
+              get(orderBaseUrl(Long.toString(orderId))).
+              then().
+              statusCode(200)
+              .extract()
+              .path("assignedCourier");
+      assertThat(assignedCourier).isGreaterThan(0);
+    });
+
+  }
+
 }

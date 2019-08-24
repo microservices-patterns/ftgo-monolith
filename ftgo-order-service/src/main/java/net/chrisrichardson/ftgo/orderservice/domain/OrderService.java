@@ -1,21 +1,17 @@
 package net.chrisrichardson.ftgo.orderservice.domain;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import net.chrisrichardson.ftgo.common.Restaurant;
-import net.chrisrichardson.ftgo.common.RestaurantRepository;
 import net.chrisrichardson.ftgo.consumerservice.domain.ConsumerService;
-import net.chrisrichardson.ftgo.orderservice.api.events.OrderDetails;
-import net.chrisrichardson.ftgo.orderservice.api.events.OrderLineItem;
+import net.chrisrichardson.ftgo.domain.*;
 import net.chrisrichardson.ftgo.orderservice.web.MenuItemIdAndQuantity;
-import net.chrisrichardson.ftgo.common.MenuItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.function.Consumer;
 
 import static java.util.stream.Collectors.toList;
@@ -32,16 +28,19 @@ public class OrderService {
   private Optional<MeterRegistry> meterRegistry;
 
   private ConsumerService consumerService;
+  private CourierRepository courierRepository;
+  private Random random = new Random();
 
   public OrderService(OrderRepository orderRepository,
                       RestaurantRepository restaurantRepository,
                       Optional<MeterRegistry> meterRegistry,
-                      ConsumerService consumerService) {
+                      ConsumerService consumerService, CourierRepository courierRepository) {
 
     this.orderRepository = orderRepository;
     this.restaurantRepository = restaurantRepository;
     this.meterRegistry = meterRegistry;
     this.consumerService = consumerService;
+    this.courierRepository = courierRepository;
   }
 
   @Transactional
@@ -55,10 +54,7 @@ public class OrderService {
     Order order = new Order(consumerId, restaurant, orderLineItems);
     orderRepository.save(order);
 
-    OrderDetails orderDetails = new OrderDetails(consumerId, restaurantId, orderLineItems, order.getOrderTotal());
-
-    consumerService.validateOrderForConsumer(consumerId, orderDetails.getOrderTotal());
-    confirmCreateTicket(order.getId());
+    consumerService.validateOrderForConsumer(consumerId, order.getOrderTotal());
     approveOrder(order.getId());
 
     meterRegistry.ifPresent(mr -> mr.counter("placed_orders").increment());
@@ -77,91 +73,48 @@ public class OrderService {
   public Order cancel(Long orderId) {
     Order order = tryToFindOrder(orderId);
 
-    beginCancel(orderId);
-    cancelTicket(order.getRestaurant().getId(), orderId);
-    confirmCancelTicket(order.getRestaurant().getId(), orderId);
-    confirmCancelled(orderId);
+    order.cancel();
 
     return order;
   }
 
-  private Order updateOrder(long orderId, Consumer<Order> updater) {
-    return orderRepository.findById(orderId).map(order -> {
-      updater.accept(order);
+  public void approveOrder(long orderId) {
+    orderRepository.findById(orderId).map(order -> {
+      ((Consumer<Order>) Order::noteApproved).accept(order);
       return order;
     }).orElseThrow(() -> new OrderNotFoundException(orderId));
-  }
-
-  public void approveOrder(long orderId) {
-    updateOrder(orderId, Order::noteApproved);
     meterRegistry.ifPresent(mr -> mr.counter("approved_orders").increment());
-  }
-
-  public void beginCancel(long orderId) {
-    updateOrder(orderId, Order::cancel);
-  }
-
-  public void confirmCancelled(long orderId) {
-    updateOrder(orderId, Order::noteCancelled);
   }
 
   @Transactional
   public Order reviseOrder(long orderId, OrderRevision orderRevision) {
     Order order = tryToFindOrder(orderId);
-    Optional<RevisedOrder> revisedOrder = beginReviseOrder(orderId, orderRevision);
-    revisedOrder.ifPresent(ro -> {
-      beginReviseTicket(order.getRestaurant().getId(), orderId, orderRevision.getRevisedLineItemQuantities());
-      confirmReviseTicket(order.getRestaurant().getId(), orderId, orderRevision.getRevisedLineItemQuantities());
-      confirmRevision(orderId, orderRevision);
-    });
+    order.revise(orderRevision);
     return order;
   }
 
-  public Optional<RevisedOrder> beginReviseOrder(long orderId, OrderRevision revision) {
-    return orderRepository.findById(orderId).map(order -> new RevisedOrder(order, order.revise(revision)));
+  public void accept(long orderId, LocalDateTime readyBy) {
+    Order order = tryToFindOrder(orderId);
+    order.acceptTicket(readyBy);
+    scheduleDelivery(order, readyBy);
   }
 
-  public void confirmRevision(long orderId, OrderRevision revision) {
-    updateOrder(orderId, order -> order.confirmRevision(revision));
+  public void scheduleDelivery(Order order, LocalDateTime readyBy) {
+
+    // Stupid implementation
+
+    List<Courier> couriers = courierRepository.findAllAvailable();
+    Courier courier = couriers.get(random.nextInt(couriers.size()));
+    courier.addAction(Action.makePickup(order));
+    courier.addAction(Action.makeDropoff(order, readyBy.plusMinutes(30)));
+
+    order.schedule(readyBy, courier);
+
   }
 
-  public void confirmCreateTicket(Long orderId) {
-    tryToFindOrder(orderId).confirmCreateTicket();
-  }
-
-  public void cancelCreateTicket(Long orderId) {
-    tryToFindOrder(orderId).cancelCreateTicket();
-  }
-
-  public void acceptTicket(long orderId, LocalDateTime readyBy) {
-    tryToFindOrder(orderId).acceptTicket(readyBy);
-  }
-
-  private void cancelTicket(long restaurantId, long orderId) {
-    tryToFindOrder(orderId).cancelTicket();
-  }
-
-  public void confirmCancelTicket(long restaurantId, long orderId) {
-    tryToFindOrder(orderId).confirmCancelTicket();
-  }
-
-  public void undoCancelTicket(long restaurantId, long orderId) {
-    tryToFindOrder(orderId).undoCancelTicket();
-  }
-
-  public void beginReviseTicket(long restaurantId, Long orderId, Map<String, Integer> revisedLineItemQuantities) {
-    tryToFindOrder(orderId).beginReviseTicket(revisedLineItemQuantities);
-  }
-
-  public void undoBeginReviseTicket(long restaurantId, Long orderId) {
-    tryToFindOrder(orderId).undoBeginReviseTicket();
-  }
-
-  public void confirmReviseTicket(long restaurantId, long orderId, Map<String, Integer> revisedLineItemQuantities) {
-    tryToFindOrder(orderId).confirmReviseTicket(revisedLineItemQuantities);
-  }
 
   private Order tryToFindOrder(Long orderId) {
     return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
   }
+
 }
