@@ -19,7 +19,7 @@ public class RestaurantService {
   private RestaurantRepository restaurantRepository;
 
   public Restaurant create(CreateRestaurantRequest request) {
-    Restaurant restaurant = new Restaurant(request.getName(), makeRestaurantMenu(request.getMenu()));
+    Restaurant restaurant = new Restaurant(request.getName(), request.getAddress(), makeRestaurantMenu(request.getMenu()));
     restaurantRepository.save(restaurant);
     return restaurant;
   }

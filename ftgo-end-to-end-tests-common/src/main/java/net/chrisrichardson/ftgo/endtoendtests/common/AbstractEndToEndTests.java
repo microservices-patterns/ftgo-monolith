@@ -7,6 +7,7 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.ObjectMapperConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import io.eventuate.util.test.async.Eventually;
+import net.chrisrichardson.ftgo.common.Address;
 import net.chrisrichardson.ftgo.common.Money;
 import net.chrisrichardson.ftgo.common.MoneyModule;
 import net.chrisrichardson.ftgo.common.PersonName;
@@ -34,6 +35,7 @@ public abstract class AbstractEndToEndTests {
 
   public static final String CHICKED_VINDALOO_MENU_ITEM_ID = "1";
   public static final String RESTAURANT_NAME = "My Restaurant";
+  private static final Address RESTAURANT_ADDRESS = new Address("1 High Street", null, "Oakland", "CA", "94619");
 
   private final int revisedQuantityOfChickenVindaloo = 10;
   private int consumerId;
@@ -221,6 +223,7 @@ public abstract class AbstractEndToEndTests {
     Integer restaurantId =
             given().
                     body(new CreateRestaurantRequest(RESTAURANT_NAME,
+                            RESTAURANT_ADDRESS,
                             new RestaurantMenuDTO(Collections.singletonList(new MenuItemDTO(CHICKED_VINDALOO_MENU_ITEM_ID, "Chicken Vindaloo", priceOfChickenVindaloo))))).
                     contentType("application/json").
                     when().

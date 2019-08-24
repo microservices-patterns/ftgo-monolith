@@ -1,5 +1,6 @@
 package net.chrisrichardson.ftgo.domain;
 
+import net.chrisrichardson.ftgo.common.Address;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -18,8 +19,8 @@ public class Restaurant {
 
   private String name;
 
-//  @Embedded
-//  private RestaurantMenu menu;
+  @Embedded
+  private Address address;
 
   @Embedded
   @ElementCollection
@@ -29,8 +30,9 @@ public class Restaurant {
   public Restaurant() {
   }
 
-  public Restaurant(String name, RestaurantMenu menu) {
+  public Restaurant(String name, Address address, RestaurantMenu menu) {
     this.name = name;
+    this.address = address;
     this.menuItems = menu.getMenuItems();
   }
 
@@ -54,6 +56,10 @@ public class Restaurant {
 
   public Long getId() {
     return id;
+  }
+
+  public Address getAddress() {
+    return address;
   }
 
   public Optional<MenuItem> findMenuItem(String menuItemId) {
