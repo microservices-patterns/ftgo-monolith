@@ -1,0 +1,10 @@
+plugins {
+    id "org.flywaydb.flyway" version "6.0.0"
+}
+
+flyway {
+    url = "jdbc:mysql://${System.getenv('DOCKER_HOST_IP') ?: 'localhost'}/ftgo?useSSL=false"
+    user = 'root'
+    password = 'rootpassword'
+    schemas = ['ftgo']
+}
