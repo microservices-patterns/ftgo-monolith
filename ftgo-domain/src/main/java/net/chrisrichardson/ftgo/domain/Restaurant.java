@@ -1,5 +1,7 @@
 package net.chrisrichardson.ftgo.domain;
 
+import org.hibernate.annotations.DynamicUpdate;
+
 import javax.persistence.*;
 import java.util.List;
 import java.util.Optional;
@@ -7,6 +9,7 @@ import java.util.Optional;
 @Entity
 @Table(name = "restaurants")
 @Access(AccessType.FIELD)
+@DynamicUpdate
 public class Restaurant {
 
   @Id

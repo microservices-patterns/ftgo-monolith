@@ -55,6 +55,7 @@ create table orders
   order_minimum            decimal(19, 2),
   payment_token            varchar(255),
   picked_up_time           datetime,
+  delivered_time           datetime,
   preparing_time           datetime,
   previous_ticket_state    integer,
   ready_by                 datetime,

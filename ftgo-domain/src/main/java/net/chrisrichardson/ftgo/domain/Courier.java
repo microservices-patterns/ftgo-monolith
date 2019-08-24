@@ -1,10 +1,13 @@
 package net.chrisrichardson.ftgo.domain;
 
+import org.hibernate.annotations.DynamicUpdate;
+
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
 @Access(AccessType.FIELD)
+@DynamicUpdate
 public class Courier {
 
   @Id

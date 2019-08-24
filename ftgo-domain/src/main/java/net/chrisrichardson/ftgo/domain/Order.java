@@ -2,6 +2,7 @@ package net.chrisrichardson.ftgo.domain;
 
 import net.chrisrichardson.ftgo.common.Money;
 import net.chrisrichardson.ftgo.common.UnsupportedStateTransitionException;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import static net.chrisrichardson.ftgo.domain.OrderState.*;
 @Entity
 @Table(name = "orders")
 @Access(AccessType.FIELD)
+@DynamicUpdate
 public class Order {
 
   @Id
@@ -46,8 +48,9 @@ public class Order {
   private LocalDateTime readyBy;
   private LocalDateTime acceptTime;
   private LocalDateTime preparingTime;
-  private LocalDateTime pickedUpTime;
   private LocalDateTime readyForPickupTime;
+  private LocalDateTime pickedUpTime;
+  private LocalDateTime deliveredTime;
 
   @ManyToOne
   private Courier assignedCourier;
@@ -187,7 +190,7 @@ public class Order {
     switch (orderState) {
       case PICKED_UP:
         this.orderState = OrderState.DELIVERED;
-        this.pickedUpTime = LocalDateTime.now();
+        this.deliveredTime = LocalDateTime.now();
         return;
       default:
         throw new UnsupportedStateTransitionException(orderState);
