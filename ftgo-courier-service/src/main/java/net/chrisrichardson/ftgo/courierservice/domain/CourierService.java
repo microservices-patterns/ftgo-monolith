@@ -1,6 +1,7 @@
 package net.chrisrichardson.ftgo.courierservice.domain;
 
 
+import net.chrisrichardson.ftgo.domain.Courier;
 import net.chrisrichardson.ftgo.domain.CourierRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,4 +29,7 @@ public class CourierService {
     courierRepository.findOrCreateCourier(courierId).noteUnavailable();
   }
 
+  public Courier findCourierById(long courierId) {
+    return courierRepository.findById(courierId).get();
+  }
 }

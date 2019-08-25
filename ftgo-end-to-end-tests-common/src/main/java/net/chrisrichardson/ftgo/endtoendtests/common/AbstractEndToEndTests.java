@@ -312,16 +312,27 @@ public abstract class AbstractEndToEndTests {
   }
 
   private void assertOrderAssignedToCourier() {
-    Eventually.eventually(() -> {
+    long courierId = Eventually.eventuallyReturning(() -> {
       long assignedCourier = given().
               when().
               get(orderBaseUrl(Long.toString(orderId))).
               then().
               statusCode(200)
+              .body("courierActions[0].type", equalTo("PICKUP"))
+              .body("courierActions[1].type", equalTo("DROPOFF"))
               .extract()
               .path("assignedCourier");
       assertThat(assignedCourier).isGreaterThan(0);
+      return assignedCourier;
     });
+
+    given().
+            when().
+            get(baseUrl(getApplicationPort(), "couriers", Long.toString(courierId))).
+            then().
+            statusCode(200)
+            .body("plan.actions[0].type", equalTo("PICKUP"))
+            .body("plan.actions[1].type", equalTo("DROPOFF"));
 
   }
 
