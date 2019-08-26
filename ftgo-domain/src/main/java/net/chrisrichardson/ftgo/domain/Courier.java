@@ -1,5 +1,7 @@
 package net.chrisrichardson.ftgo.domain;
 
+import net.chrisrichardson.ftgo.common.Address;
+import net.chrisrichardson.ftgo.common.PersonName;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -11,23 +13,26 @@ import java.util.List;
 public class Courier {
 
   @Id
-  private long id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @Embedded
+  private PersonName name;
+
+  @Embedded
+  private Address address;
 
   @Embedded
   private Plan plan;
 
   private Boolean available;
 
-  private Courier() {
+  public Courier() {
   }
 
-  public Courier(long courierId) {
-    this.id = courierId;
-    this.plan = new Plan();
-  }
-
-  public static Courier create(long courierId) {
-    return new Courier(courierId);
+  public Courier(PersonName name, Address address) {
+    this.name = name;
+    this.address = address;
   }
 
   public void noteAvailable() {
@@ -51,7 +56,7 @@ public class Courier {
     return plan;
   }
 
-  public long getId() {
+  public Long getId() {
     return id;
   }
 

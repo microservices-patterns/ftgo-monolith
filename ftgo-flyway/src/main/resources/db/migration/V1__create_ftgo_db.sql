@@ -10,8 +10,15 @@ create table consumers
 
 create table courier
 (
-  id        bigint not null,
+  id                       bigint not null auto_increment,
   available bit,
+  first_name varchar(255),
+  last_name varchar(255),
+  street1 varchar(255),
+  street2 varchar(255),
+  city    varchar(255),
+  state   varchar(255),
+  zip     varchar(255),
   primary key (id)
 ) engine = InnoDB;
 
@@ -88,13 +95,18 @@ create table restaurants
 
 alter table courier_actions
   add constraint courier_actions_order_id foreign key (order_id) references orders (id);
+
 alter table courier_actions
   add constraint courier_actions_courier_id foreign key (courier_id) references courier (id);
+
 alter table order_line_items
   add constraint order_line_items_id foreign key (order_id) references orders (id);
+
 alter table orders
   add constraint orders_assigned_courier_id foreign key (assigned_courier_id) references courier (id);
+
 alter table orders
   add constraint orders_restaurant_id foreign key (restaurant_id) references restaurants (id);
+
 alter table restaurant_menu_items
   add constraint restaurant_menu_items_restaurant_id foreign key (restaurant_id) references restaurants (id);

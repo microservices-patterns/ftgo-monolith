@@ -13,14 +13,4 @@ public class CustomCourierRepositoryImpl implements CustomCourierRepository {
 //  public List<Courier> findAllAvailable() {
 //    return entityManager.createQuery("").getResultList();
 //  }
-
-  @Override
-  public Courier findOrCreateCourier(long courierId) {
-    Courier courier = entityManager.find(Courier.class, courierId);
-    if (courier == null) {
-      courier = Courier.create(courierId);
-      entityManager.persist(courier);
-    }
-    return courier;
-  }
 }

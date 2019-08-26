@@ -13,6 +13,7 @@ import net.chrisrichardson.ftgo.common.MoneyModule;
 import net.chrisrichardson.ftgo.common.PersonName;
 import net.chrisrichardson.ftgo.consumerservice.api.web.CreateConsumerRequest;
 import net.chrisrichardson.ftgo.courierservice.api.CourierAvailability;
+import net.chrisrichardson.ftgo.courierservice.api.CreateCourierRequest;
 import net.chrisrichardson.ftgo.orderservice.api.web.CreateOrderRequest;
 import net.chrisrichardson.ftgo.orderservice.api.web.OrderAcceptance;
 import net.chrisrichardson.ftgo.orderservice.api.web.ReviseOrderRequest;
@@ -43,7 +44,7 @@ public abstract class AbstractEndToEndTests {
   private int orderId;
   private final Money priceOfChickenVindaloo = new Money("12.34");
   private static ObjectMapper objectMapper = new ObjectMapper();
-  private long courierId;
+  private int courierId;
 
   private String baseUrl(int port, String path, String... pathElements) {
     assertNotNull("host", getHost());
@@ -102,6 +103,8 @@ public abstract class AbstractEndToEndTests {
   public void shouldDeliverOrder() {
 
     createOrder();
+
+    createCourier();
 
     noteCourierAvailable();
 
@@ -289,8 +292,19 @@ public abstract class AbstractEndToEndTests {
     });
   }
 
+  private void createCourier() {
+    courierId = given().
+            body(new CreateCourierRequest(new PersonName("John", "Doe"), new Address("1 Scenic Drive", null, "Oakland", "CA", "94555"))).
+            contentType("application/json").
+            when().
+            post(baseUrl(getApplicationPort(), "couriers")).
+            then().
+            statusCode(200)
+            .extract()
+            .path("id");
+  }
+
   private void noteCourierAvailable() {
-    courierId = System.currentTimeMillis();
     given().
             body(new CourierAvailability(true)).
             contentType("application/json").
@@ -301,7 +315,6 @@ public abstract class AbstractEndToEndTests {
   }
 
   private void acceptOrder() {
-    courierId = System.currentTimeMillis();
     given().
             body(new OrderAcceptance(LocalDateTime.now().plusHours(9))).
             contentType("application/json").
@@ -312,8 +325,8 @@ public abstract class AbstractEndToEndTests {
   }
 
   private void assertOrderAssignedToCourier() {
-    long courierId = Eventually.eventuallyReturning(() -> {
-      long assignedCourier = given().
+    int courierId = Eventually.eventuallyReturning(() -> {
+      int assignedCourier = given().
               when().
               get(orderBaseUrl(Long.toString(orderId))).
               then().
