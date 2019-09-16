@@ -1,6 +1,6 @@
 #! /bin/bash -e
 
-for SN in $* ; do
+for SN in ftgo-application ; do
 
     ./gradlew :${SN?}:assemble
     docker-compose build ${SN?}
@@ -8,4 +8,3 @@ for SN in $* ; do
 done
 
 docker-compose logs -f $*
-
