@@ -1,6 +1,6 @@
 = FTGO Monolith
 
-This is the monolithic version of the https://github.com/microservices-patterns/ftgo-application[FTGO application] from  my book https://www.manning.com/books/microservice-patterns[Microservice patterns].
+This is the monolithic version of the https://github.com/microservices-patterns/ftgo-application[FTGO application] from my book https://microservices.io/book[Microservices patterns].
 It's used to illustrate how to refactor a monolithic application to services.
 
 image::http://microservices.io/i/Microservices-Patterns-Cover.png[width=50%]
