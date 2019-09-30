@@ -24,12 +24,6 @@ public class CourierController {
     return new ResponseEntity<>(new CreateCourierResponse(courier.getId()), HttpStatus.OK);
   }
 
-  @RequestMapping(path="/couriers/{courierId}/availability", method= RequestMethod.POST)
-  public ResponseEntity<String> updateCourierLocation(@PathVariable long courierId, @RequestBody CourierAvailability availability) {
-    courierService.updateAvailability(courierId, availability.isAvailable());
-    return new ResponseEntity<>(HttpStatus.OK);
-  }
-
   @RequestMapping(path="/couriers/{courierId}", method= RequestMethod.GET)
   public ResponseEntity<Courier> get(@PathVariable long courierId) {
     Courier courier = courierService.findCourierById(courierId);

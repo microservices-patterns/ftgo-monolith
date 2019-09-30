@@ -107,16 +107,5 @@ public class OrderController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @RequestMapping(path="/{orderId}/pickedup", method= RequestMethod.POST)
-  public ResponseEntity<String> pickedup(@PathVariable long orderId) {
-    orderService.notePickedUp(orderId);
-    return new ResponseEntity<>(HttpStatus.OK);
-  }
-
-  @RequestMapping(path="/{orderId}/delivered", method= RequestMethod.POST)
-  public ResponseEntity<String> delivered(@PathVariable long orderId) {
-    orderService.noteDelivered(orderId);
-    return new ResponseEntity<>(HttpStatus.OK);
-  }
 
 }

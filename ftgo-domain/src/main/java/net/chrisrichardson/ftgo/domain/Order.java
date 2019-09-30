@@ -148,7 +148,7 @@ public class Order {
   public void notePreparing() {
     switch (orderState) {
       case ACCEPTED:
-        this.orderState = orderState.PREPARING;
+        this.orderState = OrderState.PREPARING;
         this.preparingTime = LocalDateTime.now();
         return;
       default:
@@ -167,34 +167,10 @@ public class Order {
     }
   }
 
-  public void notePickedUp() {
-    switch (orderState) {
-      case READY_FOR_PICKUP:
-        this.orderState = OrderState.PICKED_UP;
-        this.pickedUpTime = LocalDateTime.now();
-        return;
-      default:
-        throw new UnsupportedStateTransitionException(orderState);
-    }
-  }
-
-  public void schedule(Courier assignedCourier) {
-    this.assignedCourier = assignedCourier;
-  }
 
   public Courier getAssignedCourier() {
     return assignedCourier;
   }
 
-  public void noteDelivered() {
-    switch (orderState) {
-      case PICKED_UP:
-        this.orderState = OrderState.DELIVERED;
-        this.deliveredTime = LocalDateTime.now();
-        return;
-      default:
-        throw new UnsupportedStateTransitionException(orderState);
-    }
-  }
 }
 

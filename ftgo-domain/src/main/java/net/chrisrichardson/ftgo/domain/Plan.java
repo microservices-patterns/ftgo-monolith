@@ -10,14 +10,6 @@ public class Plan {
   @ElementCollection
   private List<Action> actions = new LinkedList<>();
 
-  public void add(Action action) {
-    actions.add(action);
-  }
-
-  public void removeDelivery(Order order) {
-    actions = actions.stream().filter(action -> !action.actionFor(order)).collect(Collectors.toList());
-  }
-
   public List<Action> getActions() {
     return actions;
   }

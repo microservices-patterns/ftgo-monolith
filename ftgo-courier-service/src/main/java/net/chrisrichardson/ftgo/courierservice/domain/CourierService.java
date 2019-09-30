@@ -16,26 +16,10 @@ public class CourierService {
   }
 
   @Transactional
-  public void updateAvailability(long courierId, boolean available) {
-    if (available)
-      noteAvailable(courierId);
-    else
-      noteUnavailable(courierId);
-  }
-
-  @Transactional
   public Courier createCourier(PersonName name, Address address) {
     Courier courier = new Courier(name, address);
     courierRepository.save(courier);
     return courier;
-  }
-
-  void noteAvailable(long courierId) {
-    courierRepository.findById(courierId).get().noteAvailable();
-  }
-
-  void noteUnavailable(long courierId) {
-    courierRepository.findById(courierId).get().noteUnavailable();
   }
 
   public Courier findCourierById(long courierId) {

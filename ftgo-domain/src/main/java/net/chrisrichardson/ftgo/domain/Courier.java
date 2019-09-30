@@ -35,33 +35,12 @@ public class Courier {
     this.address = address;
   }
 
-  public void noteAvailable() {
-    this.available = true;
-
-  }
-
-  public void addAction(Action action) {
-    plan.add(action);
-  }
-
-  public void cancelDelivery(Order order) {
-    plan.removeDelivery(order);
-  }
-
-  public boolean isAvailable() {
-    return available;
-  }
-
-  public Plan getPlan() {
-    return plan;
-  }
-
   public Long getId() {
     return id;
   }
 
-  public void noteUnavailable() {
-    this.available = false;
+  public Plan getPlan() {
+    return plan;
   }
 
   public List<Action> actionsForDelivery(Order order) {
