@@ -7,19 +7,20 @@ import org.hibernate.annotations.DynamicUpdate;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import static net.chrisrichardson.ftgo.deliveryservice.domain.DeliveryState.SCHEDULED;
+
 @Entity
-@Table(name = "orders")
+@Table(name = "delivery", catalog = "ftgo_delivery_service")
 @Access(AccessType.FIELD)
 @DynamicUpdate
 public class Delivery {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private long id;
 
   @Enumerated(EnumType.STRING)
   @Column(name="orderState")
-  private DeliveryState deliveryState;
+  private DeliveryState deliveryState ;
 
   @ManyToOne(fetch = FetchType.LAZY)
   private DeliveryRestaurant restaurant;
@@ -40,19 +41,30 @@ public class Delivery {
   private LocalDateTime deliveredTime;
   private LocalDateTime pickedUpTime;
 
+  public Delivery() {
+  }
+
+  public Delivery(long orderId, DeliveryRestaurant restaurant, Address deliveryAddress) {
+    this.id = orderId;
+    this.restaurant = restaurant;
+    this.deliveryAddress = deliveryAddress;
+    this.deliveryState = DeliveryState.PENDING;
+  }
+
   public Long getId() {
     return id;
   }
 
 
   public void schedule(DeliveryCourier assignedCourier) {
+    this.deliveryState = SCHEDULED;
     this.assignedCourier = assignedCourier;
   }
 
 
   public void notePickedUp() {
     switch (deliveryState) {
-      case READY_FOR_PICKUP:
+      case SCHEDULED:
         this.deliveryState = DeliveryState.PICKED_UP;
         this.pickedUpTime = LocalDateTime.now();
         return;
@@ -74,7 +86,7 @@ public class Delivery {
 
 
   public void cancel() {
-    // TODO should be a state change: this.state = DeliveryState.CANCELLED;
+    this.deliveryState = DeliveryState.CANCELLED;
     this.assignedCourier = null;
   }
 

@@ -8,7 +8,7 @@ import java.util.List;
 @Entity
 @Access(AccessType.FIELD)
 @DynamicUpdate
-@Table(name = "courier")
+@Table(name = "courier", catalog="ftgo_delivery_service")
 public class DeliveryCourier {
 
   @Id

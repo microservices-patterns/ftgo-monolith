@@ -1,5 +1,6 @@
 package net.chrisrichardson.ftgo.orderservice.web;
 
+import net.chrisrichardson.ftgo.domain.DeliveryInformation;
 import net.chrisrichardson.ftgo.domain.Order;
 import net.chrisrichardson.ftgo.domain.OrderRepository;
 import net.chrisrichardson.ftgo.domain.OrderRevision;
@@ -37,6 +38,7 @@ public class OrderController {
   public CreateOrderResponse create(@RequestBody CreateOrderRequest request) {
     Order order = orderService.createOrder(request.getConsumerId(),
             request.getRestaurantId(),
+            new DeliveryInformation(request.getDeliveryTime(), request.getDeliveryAddress()),
             request.getLineItems().stream().map(x -> new MenuItemIdAndQuantity(x.getMenuItemId(), x.getQuantity())).collect(toList())
     );
     return new CreateOrderResponse(order.getId());

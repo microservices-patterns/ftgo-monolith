@@ -25,7 +25,7 @@ public class Courier {
   @Embedded
   private Plan plan;
 
-  private Boolean available;
+  private Boolean available = false;
 
   public Courier() {
   }

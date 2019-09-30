@@ -58,9 +58,10 @@ public class Order {
   private Order() {
   }
 
-  public Order(long consumerId, Restaurant restaurant, List<OrderLineItem> orderLineItems) {
+  public Order(long consumerId, Restaurant restaurant, DeliveryInformation deliveryInformation, List<OrderLineItem> orderLineItems) {
     this.consumerId = consumerId;
     this.restaurant = restaurant;
+    this.deliveryInformation = deliveryInformation;
     this.orderLineItems = new OrderLineItems(orderLineItems);
     this.orderState = APPROVED;
   }
@@ -148,7 +149,7 @@ public class Order {
   public void notePreparing() {
     switch (orderState) {
       case ACCEPTED:
-        this.orderState = OrderState.PREPARING;
+        this.orderState = PREPARING;
         this.preparingTime = LocalDateTime.now();
         return;
       default:
@@ -159,7 +160,7 @@ public class Order {
   public void noteReadyForPickup() {
     switch (orderState) {
       case PREPARING:
-        this.orderState = OrderState.READY_FOR_PICKUP;
+        this.orderState = READY_FOR_PICKUP;
         this.readyForPickupTime = LocalDateTime.now();
         return;
       default:
@@ -172,5 +173,8 @@ public class Order {
     return assignedCourier;
   }
 
+  public DeliveryInformation getDeliveryInformation() {
+    return deliveryInformation;
+  }
 }
 

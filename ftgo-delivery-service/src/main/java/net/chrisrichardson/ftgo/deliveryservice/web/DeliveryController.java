@@ -1,6 +1,7 @@
 package net.chrisrichardson.ftgo.deliveryservice.web;
 
 import net.chrisrichardson.ftgo.deliveryservice.domain.DeliveryCourierService;
+import net.chrisrichardson.ftgo.deliveryservice.api.web.CourierAvailability;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -43,14 +43,14 @@ public class OrderService {
 
   @Transactional
   public Order createOrder(long consumerId, long restaurantId,
-                           List<MenuItemIdAndQuantity> lineItems) {
+                           DeliveryInformation deliveryInformation, List<MenuItemIdAndQuantity> lineItems) {
     Restaurant restaurant = restaurantRepository.findById(restaurantId)
             .orElseThrow(() -> new RestaurantNotFoundException(restaurantId));
 
 
     List<OrderLineItem> orderLineItems = makeOrderLineItems(lineItems, restaurant);
 
-    Order order = new Order(consumerId, restaurant, orderLineItems);
+    Order order = new Order(consumerId, restaurant, deliveryInformation, orderLineItems);
 
     consumerService.validateOrderForConsumer(consumerId, order.getOrderTotal());
 
@@ -92,7 +92,7 @@ public class OrderService {
   public void accept(long orderId, LocalDateTime readyBy) {
     Order order = tryToFindOrder(orderId);
     order.acceptTicket(readyBy);
-    deliveryService.scheduleDelivery(readyBy, order.getId());
+    deliveryService.scheduleDelivery(readyBy, order.getId(), order.getRestaurant().getId(), order.getDeliveryInformation().getDeliveryAddress());
   }
 
 

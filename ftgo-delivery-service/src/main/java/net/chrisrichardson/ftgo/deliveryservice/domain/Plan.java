@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public class Plan {
 
   @ElementCollection
-  @CollectionTable(name = "courier_actions", joinColumns = @JoinColumn(name = "courier_id"))
+  @CollectionTable(name = "courier_actions", joinColumns = @JoinColumn(name = "courier_id"), catalog = "ftgo_delivery_service")
   private List<Action> actions = new LinkedList<>();
 
   public void add(Action action) {

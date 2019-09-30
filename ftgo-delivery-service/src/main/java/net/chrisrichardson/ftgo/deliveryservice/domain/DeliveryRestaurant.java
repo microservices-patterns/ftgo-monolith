@@ -6,7 +6,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "restaurant")
+@Table(name = "restaurants", catalog = "ftgo_delivery_service")
 @Access(AccessType.FIELD)
 @DynamicUpdate
 public class DeliveryRestaurant {

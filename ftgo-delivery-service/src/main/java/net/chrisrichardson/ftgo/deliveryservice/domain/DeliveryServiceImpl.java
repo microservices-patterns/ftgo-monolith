@@ -1,5 +1,6 @@
 package net.chrisrichardson.ftgo.deliveryservice.domain;
 
+import net.chrisrichardson.ftgo.common.Address;
 import net.chrisrichardson.ftgo.deliveryservice.api.service.DeliveryService;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,16 +13,24 @@ public class DeliveryServiceImpl implements DeliveryService, DeliveryCourierServ
   private Random random = new Random();
   private DeliveryCourierRepository courierRepository;
   private DeliveryRepository deliveryRepository;
+  private DeliveryRestaurantRepository restaurantRepository;
 
-  public DeliveryServiceImpl(DeliveryCourierRepository courierRepository, DeliveryRepository deliveryRepository) {
+  public DeliveryServiceImpl(DeliveryCourierRepository courierRepository, DeliveryRepository deliveryRepository, DeliveryRestaurantRepository restaurantRepository) {
     this.courierRepository = courierRepository;
     this.deliveryRepository = deliveryRepository;
+    this.restaurantRepository = restaurantRepository;
   }
 
   @Override
-  public void scheduleDelivery(LocalDateTime readyBy, Long orderId) {
+  public void scheduleDelivery(LocalDateTime readyBy, Long orderId, long restaurantId, Address deliveryAddress) {
 
-    Delivery delivery = deliveryRepository.findById(orderId).get();
+    // TODO readyBy unused
+
+    DeliveryRestaurant restaurant = restaurantRepository.findById(restaurantId).get();
+
+    Delivery delivery = new Delivery(orderId, restaurant, deliveryAddress);
+
+    delivery = deliveryRepository.save(delivery);
 
     // Stupid implementation
 
@@ -50,12 +59,13 @@ public class DeliveryServiceImpl implements DeliveryService, DeliveryCourierServ
 
   @Override
   public void cancelDelivery(long orderId) {
-    Delivery delivery = deliveryRepository.findById(orderId).get();
-    DeliveryCourier assignedCourier = delivery.getAssignedCourier();
-    delivery.cancel();
-    if (assignedCourier != null) {
-      assignedCourier.cancelDelivery(delivery);
-    }
+    deliveryRepository.findById(orderId).ifPresent(delivery -> {
+      DeliveryCourier assignedCourier = delivery.getAssignedCourier();
+      delivery.cancel();
+      if (assignedCourier != null) {
+        assignedCourier.cancelDelivery(delivery);
+      }
+    });
   }
 
   @Override

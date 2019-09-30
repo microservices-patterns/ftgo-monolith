@@ -52,13 +52,13 @@ create table orders
   id                       bigint not null auto_increment,
   accept_time              datetime,
   consumer_id              bigint,
-  delivery_address_city    varchar(255),
-  delivery_address_state   varchar(255),
-  delivery_address_street1 varchar(255),
+  delivery_address_city    varchar(255) NOT NULL,
+  delivery_address_state   varchar(255) NOT NULL,
+  delivery_address_street1 varchar(255) NOT NULL,
   delivery_address_street2 varchar(255),
-  delivery_address_zip     varchar(255),
+  delivery_address_zip     varchar(255) NOT NULL,
   delivery_time            datetime,
-  order_state              varchar(255),
+  order_state              varchar(255) NOT NULL,
   order_minimum            decimal(19, 2),
   payment_token            varchar(255),
   picked_up_time           datetime,
@@ -69,7 +69,7 @@ create table orders
   ready_for_pickup_time    datetime,
   version                  bigint,
   assigned_courier_id      bigint,
-  restaurant_id            bigint,
+  restaurant_id            bigint NOT NULL,
   primary key (id)
 ) engine = InnoDB;
 

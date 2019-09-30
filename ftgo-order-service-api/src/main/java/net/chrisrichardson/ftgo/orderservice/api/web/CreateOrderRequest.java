@@ -1,5 +1,8 @@
 package net.chrisrichardson.ftgo.orderservice.api.web;
 
+import net.chrisrichardson.ftgo.common.Address;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class CreateOrderRequest {
@@ -7,10 +10,14 @@ public class CreateOrderRequest {
   private long restaurantId;
   private long consumerId;
   private List<LineItem> lineItems;
+  private LocalDateTime deliveryTime;
+  private Address deliveryAddress;
 
-  public CreateOrderRequest(long consumerId, long restaurantId, List<LineItem> lineItems) {
+  public CreateOrderRequest(long consumerId, long restaurantId, LocalDateTime deliveryTime, Address deliveryAddress, List<LineItem> lineItems) {
     this.restaurantId = restaurantId;
     this.consumerId = consumerId;
+    this.deliveryTime = deliveryTime;
+    this.deliveryAddress = deliveryAddress;
     this.lineItems = lineItems;
 
   }
@@ -40,6 +47,14 @@ public class CreateOrderRequest {
 
   public void setLineItems(List<LineItem> lineItems) {
     this.lineItems = lineItems;
+  }
+
+  public LocalDateTime getDeliveryTime() {
+    return deliveryTime;
+  }
+
+  public Address getDeliveryAddress() {
+    return deliveryAddress;
   }
 
   public static class LineItem {
@@ -75,5 +90,11 @@ public class CreateOrderRequest {
 
   }
 
+  public void setDeliveryTime(LocalDateTime deliveryTime) {
+    this.deliveryTime = deliveryTime;
+  }
 
+  public void setDeliveryAddress(Address deliveryAddress) {
+    this.deliveryAddress = deliveryAddress;
+  }
 }

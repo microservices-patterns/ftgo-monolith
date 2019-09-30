@@ -1,9 +1,11 @@
 package net.chrisrichardson.ftgo.orderservice;
 
+import net.chrisrichardson.ftgo.common.Address;
 import net.chrisrichardson.ftgo.common.Money;
 import net.chrisrichardson.ftgo.domain.*;
 import net.chrisrichardson.ftgo.orderservice.web.MenuItemIdAndQuantity;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,8 +34,10 @@ public class OrderDetailsMother {
 
   public static final OrderState CHICKEN_VINDALOO_ORDER_STATE = OrderState.APPROVED;
 
+  private static final Address DELIVERY_ADDRESS = new Address("99 Scenic Drive", null, "Oakland", "CA", "94620");
+
   private static Order makeAjantaOrder() {
-    Order order = new Order(CONSUMER_ID, new Restaurant(AJANTA_ID, "", new RestaurantMenu(Collections.emptyList())), chickenVindalooLineItems());
+    Order order = new Order(CONSUMER_ID, new Restaurant(AJANTA_ID, "", new RestaurantMenu(Collections.emptyList())), new DeliveryInformation(LocalDateTime.now(), DELIVERY_ADDRESS), chickenVindalooLineItems());
     order.setId(ORDER_ID);
     return order;
   }

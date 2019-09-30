@@ -21,6 +21,18 @@ public class DeliveryInformation {
           @AttributeOverride(name="zip", column=@Column(name="delivery_address_zip")),
   })
   private Address deliveryAddress;
+
+  public DeliveryInformation() {
+  }
+
+  public DeliveryInformation(LocalDateTime deliveryTime, Address deliveryAddress) {
+    this.deliveryTime = deliveryTime;
+    this.deliveryAddress = deliveryAddress;
+  }
+
+  public Address getDeliveryAddress() {
+    return deliveryAddress;
+  }
 }
 
 

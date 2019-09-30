@@ -37,6 +37,7 @@ public abstract class AbstractEndToEndTests {
   public static final String CHICKED_VINDALOO_MENU_ITEM_ID = "1";
   public static final String RESTAURANT_NAME = "My Restaurant";
   private static final Address RESTAURANT_ADDRESS = new Address("1 High Street", null, "Oakland", "CA", "94619");
+  private static final Address DELIVERY_ADDRESS = new Address("99 Scenic Drive", null, "Oakland", "CA", "94620");
 
   private final int revisedQuantityOfChickenVindaloo = 10;
   private int consumerId;
@@ -252,7 +253,9 @@ public abstract class AbstractEndToEndTests {
   private int createOrder(int consumerId, int restaurantId) {
     Integer orderId =
             given().
-                    body(new CreateOrderRequest(consumerId, restaurantId, Collections.singletonList(new CreateOrderRequest.LineItem(CHICKED_VINDALOO_MENU_ITEM_ID, 5)))).
+                    body(new CreateOrderRequest(consumerId, restaurantId,
+                            LocalDateTime.now().plusMinutes(30), DELIVERY_ADDRESS,
+                            Collections.singletonList(new CreateOrderRequest.LineItem(CHICKED_VINDALOO_MENU_ITEM_ID, 5)))).
                     contentType("application/json").
                     when().
                     post(orderBaseUrl()).
