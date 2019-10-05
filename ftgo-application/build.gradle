@@ -5,7 +5,7 @@ dependencies {
     compile project(":ftgo-order-service")
     compile project(":ftgo-restaurant-service")
     compile project(":ftgo-courier-service")
-    compile project(":ftgo-delivery-service")
+    compile project(":ftgo-delivery-backend")
 
     compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
     compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"

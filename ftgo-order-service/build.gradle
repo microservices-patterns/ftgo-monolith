@@ -42,7 +42,7 @@ dependencies {
     compile project(":ftgo-restaurant-service-api")
     compile project(":ftgo-order-service-api")
     compile project(":ftgo-consumer-service")
-    compile project(":ftgo-delivery-service-api")
+    compile project(":ftgo-delivery-backend-api")
 
     compile "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
     compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"

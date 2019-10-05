@@ -1,5 +1,5 @@
 dependencies {
-    compile project(":ftgo-delivery-service-api")
+    compile project(":ftgo-delivery-backend-api")
     compile project(":ftgo-common")
 
     compile "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"

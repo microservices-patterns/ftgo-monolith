@@ -14,8 +14,8 @@ include "ftgo-domain"
 include "ftgo-order-service"
 include "ftgo-order-service-api"
 
-include "ftgo-delivery-service"
-include "ftgo-delivery-service-api"
+include "ftgo-delivery-backend"
+include "ftgo-delivery-backend-api"
 
 include "ftgo-consumer-service-api"
 include "ftgo-consumer-service"
