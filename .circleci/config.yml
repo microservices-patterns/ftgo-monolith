@@ -6,18 +6,25 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key:         ftgo-monolith-{{ checksum "gradle.properties" }}
+          keys:
+            - ftgo-monolith-{{ checksum "gradle.properties" }}
+            - ftgo-monolith-
       - run:           TERM=dumb ./gradlew testClasses
       - save_cache:
           paths:
             - ~/.gradle
             - ~/.m2
-          key:         ftgo-monolith-{{ checksum "gradle.properties" }}
+          key: ftgo-monolith-{{ checksum "gradle.properties" }}
       - run:
           command:     |
             ./.circleci/upgrade-docker-compose.sh
             . ./setenv-circle-ci.sh
-            ./build-and-test-all.sh
+            ./build-and-test-ftgo-application.sh
+      - run:
+          command:     |
+            ./.circleci/upgrade-docker-compose.sh
+            . ./setenv-circle-ci.sh
+            ./build-and-test-delivery-service.sh
       - run:
           name:        Save test results
           command:     |

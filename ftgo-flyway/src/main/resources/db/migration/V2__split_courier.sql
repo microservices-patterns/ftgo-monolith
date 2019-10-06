@@ -41,7 +41,7 @@ BEGIN
 END;;
 
 
-DROP TRIGGER  IF EXISTS courier_action_created
+DROP TRIGGER  IF EXISTS couriers_action_created
 ;;
 
 CREATE TRIGGER courier_actions_created AFTER INSERT

@@ -1,5 +1,6 @@
 package net.chrisrichardson.ftgo.deliveryservice.domain;
 
+import net.chrisrichardson.ftgo.common.PersonName;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -25,6 +26,11 @@ public class DeliveryCourier {
   public DeliveryCourier(long courierId) {
     this.id = courierId;
     this.plan = new Plan();
+  }
+
+  public DeliveryCourier(long id, boolean available) {
+    this.id = id;
+    this.available = available;
   }
 
   public static DeliveryCourier create(long courierId) {

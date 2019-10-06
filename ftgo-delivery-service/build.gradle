@@ -1,4 +1,34 @@
 apply plugin: FtgoServicePlugin
+apply plugin: ComponentTestsPlugin
+apply plugin: 'docker-compose'
+
+
+dockerCompose {
+
+    startedServices = ['not-used']
+
+    mysqlOnly {
+        projectName = null
+
+        startedServices = ['mysql']
+    }
+
+    componentTest {
+        projectName = null
+
+        startedServices = ['ftgo-delivery-service']
+
+    }
+
+}
+
+
+mysqlOnlyComposeUp.finalizedBy ":ftgo-flyway:flywayMigrate"
+componentTestComposeUp.dependsOn(mysqlOnlyComposeUp)
+
+componentTestComposeUp.dependsOn(":ftgo-delivery-service:assemble")
+
+dockerCompose.componentTest.isRequiredBy(componentTest)
 
 dependencies {
     compile project(":ftgo-delivery-backend")
@@ -10,4 +40,15 @@ dependencies {
 
     compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
     compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+
+
+    componentTestCompile "io.eventuate.tram.core:eventuate-tram-testing-support:$eventuateTramVersion"
+    componentTestCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    componentTestCompile "io.eventuate.tram.core:eventuate-tram-jdbc-kafka:$eventuateTramVersion"
+
+    componentTestCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    componentTestCompile "com.jayway.restassured:rest-assured:$restAssuredVersion"
+    componentTestCompile "com.jayway.jsonpath:json-path:2.3.0"
+
 }
+

@@ -43,13 +43,12 @@ echo mysql is started
 
 if [ -z "$ASSEMBLE_ONLY" ] ; then
 
-  ./gradlew -x :ftgo-end-to-end-tests:test $* build
+  ./gradlew -x :ftgo-end-to-end-tests:test -x :ftgo-delivery-service:componentTest $* build
 
   ${DOCKER_COMPOSE?} build
 
   ./gradlew $* integrationTest
 
-  ${DOCKER_COMPOSE?} up -d
 else
 
   ./gradlew $* assemble
@@ -60,10 +59,7 @@ else
 
   echo mysql is started
 
-  ${DOCKER_COMPOSE?} up -d --build
 fi
-
-./wait-for-services.sh
 
 ./run-end-to-end-tests.sh
 
