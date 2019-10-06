@@ -19,9 +19,13 @@ apply plugin: IntegrationTestsPlugin
 
 dockerCompose {
 
+    projectName = null
+
     startedServices = [ 'not-used']
 
     integrationTests {
+        projectName = null
+
         if (System.getenv("FTGO_DOCKER_COMPOSE_FILES") != null)
             useComposeFiles = System.getenv("FTGO_DOCKER_COMPOSE_FILES").split(",").collect { "../" + it }
 
@@ -44,6 +48,8 @@ dependencies {
     compile project(":ftgo-consumer-service")
     compile project(":ftgo-delivery-backend-api")
 
+    compile "io.eventuate.tram.core:eventuate-tram-events:$eventuateTramVersion"
+    
     compile "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
     compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
     compile "io.micrometer:micrometer-registry-prometheus:$micrometerVersion"

@@ -1,5 +1,6 @@
 package net.chrisrichardson.ftgo;
 
+import io.eventuate.tram.jdbckafka.TramJdbcKafkaConfiguration;
 import net.chrisrichardson.ftgo.consumerservice.main.ConsumerServiceConfiguration;
 import net.chrisrichardson.ftgo.endtoendtests.common.AbstractEndToEndTests;
 import net.chrisrichardson.ftgo.orderservice.main.OrderServiceConfiguration;
@@ -22,7 +23,8 @@ public class FtgoApplicationTest extends AbstractEndToEndTests {
   @ComponentScan
   @Import({ConsumerServiceConfiguration.class,
           OrderServiceConfiguration.class,
-          RestaurantServiceConfiguration.class})
+          RestaurantServiceConfiguration.class,
+          TramJdbcKafkaConfiguration.class})
   public static class Config {
 
   }

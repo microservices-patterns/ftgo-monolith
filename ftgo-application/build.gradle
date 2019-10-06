@@ -9,6 +9,21 @@ dependencies {
 
     compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
     compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    compile "io.eventuate.tram.core:eventuate-tram-jdbc-kafka:$eventuateTramVersion"
 
     testCompile project(":ftgo-end-to-end-tests-common")
 }
+
+apply plugin: 'docker-compose'
+
+dockerCompose {
+
+    projectName = null
+
+    startedServices = ['cdc-service']
+
+}
+
+// Alternative, use dockerCompose.isRequiredBy(test)
+
+test.dependsOn(composeUp)

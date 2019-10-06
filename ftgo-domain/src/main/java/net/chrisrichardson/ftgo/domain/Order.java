@@ -176,5 +176,9 @@ public class Order {
   public DeliveryInformation getDeliveryInformation() {
     return deliveryInformation;
   }
+
+  public void noteCourierAssigned(Order order, Courier courier) {
+    this.assignedCourier = courier;
+  }
 }
 

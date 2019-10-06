@@ -17,4 +17,12 @@ public class Plan {
   public List<Action> actionsForDelivery(Order order) {
     return actions.stream().filter(action -> action.actionFor(order)).collect(Collectors.toList());
   }
+
+  public void addActions(List<Action> actions) {
+    this.actions.addAll(actions);
+  }
+
+  public void removeActionsForOrder(Order order) {
+    actions.removeAll(actionsForDelivery(order));
+  }
 }

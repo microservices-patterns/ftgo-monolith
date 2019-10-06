@@ -1,4 +1,20 @@
 dependencies {
     testCompile project(":ftgo-end-to-end-tests-common")
+}
+
+
+apply plugin: 'docker-compose'
+
+dockerCompose {
+
+    projectName = null
+    
+    startedServices = ['ftgo-application']
 
 }
+
+// Alternative, use dockerCompose.isRequiredBy(test)
+
+composeBuild.dependsOn(":ftgo-application:assemble")
+composeUp.dependsOn(composeBuild)
+test.dependsOn(composeUp)

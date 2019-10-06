@@ -1,5 +1,6 @@
 package net.chrisrichardson.ftgo;
 
+import io.eventuate.tram.jdbckafka.TramJdbcKafkaConfiguration;
 import net.chrisrichardson.ftgo.consumerservice.main.ConsumerServiceConfiguration;
 import net.chrisrichardson.ftgo.deliveryservice.web.DeliveryServiceWebConfiguration;
 import net.chrisrichardson.ftgo.orderservice.main.OrderServiceConfiguration;
@@ -15,7 +16,8 @@ import org.springframework.context.annotation.Import;
 @ComponentScan
 @Import({ConsumerServiceConfiguration.class,
         OrderServiceConfiguration.class,
-        RestaurantServiceConfiguration.class, DeliveryServiceWebConfiguration.class})
+        RestaurantServiceConfiguration.class, DeliveryServiceWebConfiguration.class,
+        TramJdbcKafkaConfiguration.class})
 public class FtgoApplicationMain {
 
   public static void main(String[] args) {
