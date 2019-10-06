@@ -14,7 +14,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public class DeliveryServiceDomainConfiguration {
 
   @Bean
-  public DeliveryService deliveryService(DeliveryRepository deliveryRepository, DeliveryCourierRepository courierRepository, DeliveryRestaurantRepository restaurantRepository) {
+  public DeliveryServiceImpl deliveryService(DeliveryRepository deliveryRepository, DeliveryCourierRepository courierRepository, DeliveryRestaurantRepository restaurantRepository) {
     return new DeliveryServiceImpl(courierRepository, deliveryRepository, restaurantRepository);
   }
 }

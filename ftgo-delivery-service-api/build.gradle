@@ -1,0 +1,6 @@
+dependencies {
+    compile project(":ftgo-common")
+
+    compile "io.eventuate.tram.core:eventuate-tram-commands:$eventuateTramVersion"
+
+}

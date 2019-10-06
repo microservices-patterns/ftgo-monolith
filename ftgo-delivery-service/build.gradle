@@ -1,0 +1,13 @@
+apply plugin: FtgoServicePlugin
+
+dependencies {
+    compile project(":ftgo-delivery-backend")
+    compile project(":ftgo-delivery-service-api")
+    compile project(":common-swagger")
+
+    compile "io.eventuate.tram.core:eventuate-tram-commands:$eventuateTramVersion"
+    compile "io.eventuate.tram.core:eventuate-tram-jdbc-kafka:$eventuateTramVersion"
+
+    compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
+    compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+}
