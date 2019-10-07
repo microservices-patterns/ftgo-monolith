@@ -18,11 +18,12 @@ jobs:
       - run:
           command:     |
             ./.circleci/upgrade-docker-compose.sh
+      - run:
+          command:     |
             . ./setenv-circle-ci.sh
             ./build-and-test-ftgo-application.sh
       - run:
           command:     |
-            ./.circleci/upgrade-docker-compose.sh
             . ./setenv-circle-ci.sh
             ./build-and-test-delivery-service.sh
       - run:
