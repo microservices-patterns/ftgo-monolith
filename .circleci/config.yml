@@ -9,7 +9,7 @@ jobs:
           keys:
             - ftgo-monolith-{{ checksum "gradle.properties" }}
             - ftgo-monolith-
-      - run:           TERM=dumb ./gradlew testClasses
+      - run: TERM=dumb ./gradlew testClasses componentTestClasses integrationTestClasses
       - save_cache:
           paths:
             - ~/.gradle
