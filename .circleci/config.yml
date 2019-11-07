@@ -21,18 +21,23 @@ jobs:
       - run:
           command:     |
             . ./setenv-circle-ci.sh
-            ./build-and-test-ftgo-application.sh
+            ./build-and-test-ftgo-monolith.sh
       - run:
           command:     |
             . ./setenv-circle-ci.sh
-            ./build-and-test-delivery-service.sh
+            ./build-and-test-ftgo-microservices.sh
       - run:
           name:        Save test results
           command:     |
-            mkdir -p ~/junit/
+            mkdir -p ~/junit ~/container-logs
             find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+            docker ps -a > ~/container-logs/containers.txt
+            sudo bash -c 'find /var/lib/docker/containers -name "*-json.log" -exec cp {} ~/container-logs \;'
+            sudo bash -c 'find  ~/container-logs -type f -exec chown circleci {} \;'
           when:        always
       - store_test_results:
           path:        ~/junit
       - store_artifacts:
           path:        ~/junit
+      - store_artifacts:
+          path: ~/container-logs

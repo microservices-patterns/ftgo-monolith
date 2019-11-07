@@ -41,3 +41,18 @@ subprojects {
     }
 
 }
+
+apply plugin: 'docker-compose'
+
+dockerCompose {
+
+    startedServices = ['not-used']
+
+    mysqlOnly {
+        projectName = null
+
+        startedServices = ['mysql']
+    }
+}
+
+mysqlOnlyComposeUp.finalizedBy ":ftgo-flyway:flywayMigrate"

@@ -60,6 +60,8 @@ services:
       - "8081:8080"
     depends_on:
       - mysql
+      - kafka
+      - cdc-service
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql/ftgo
       SPRING_DATASOURCE_USERNAME: mysqluser
@@ -71,6 +73,7 @@ services:
       SPRING_SLEUTH_ENABLED: "true"
       SPRING_SLEUTH_SAMPLER_PROBABILITY: 1
       SPRING_ZIPKIN_BASE_URL: http://zipkin:9411/
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
 
   ftgo-delivery-service:
     build: ./ftgo-delivery-service
@@ -89,3 +92,18 @@ services:
       EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
       EVENTUATE_DATABASE_SCHEMA: ftgo_delivery_service
       JAVA_OPTS: -Xmx192m
+
+  ftgo-api-gateway:
+    build: ./ftgo-api-gateway
+    ports:
+      - "8087:8080"
+    depends_on:
+      - ftgo-application
+      - ftgo-delivery-service
+    environment:
+      FTGO_DESTINATIONS_DELIVERYSERVICEURL: http://ftgo-delivery-service:8080
+      FTGO_DESTINATIONS_FTGOAPPLICATIONURL: http://ftgo-application:8080
+      JAVA_OPTS: -Xmx192m
+      SPRING_SLEUTH_ENABLED: "true"
+      SPRING_SLEUTH_SAMPLER_PROBABILITY: 1
+      SPRING_ZIPKIN_BASE_URL: http://zipkin:9411/

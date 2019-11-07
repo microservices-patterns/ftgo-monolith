@@ -1,0 +1,5 @@
+dependencies {
+    compile "io.eventuate.tram.core:eventuate-tram-commands:$eventuateTramVersion"
+    compile project(":ftgo-delivery-service-api")
+    compile project(":ftgo-delivery-backend")
+}

@@ -5,8 +5,9 @@ dependencies {
     compile project(":ftgo-order-service")
     compile project(":ftgo-restaurant-service")
     compile project(":ftgo-courier-service")
-    compile project(":ftgo-delivery-backend")
+    compile project(":ftgo-delivery-service-proxy")
 
+    
     compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
     compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
     compile "io.eventuate.tram.core:eventuate-tram-jdbc-kafka:$eventuateTramVersion"

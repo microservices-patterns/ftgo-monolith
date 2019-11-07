@@ -7,14 +7,46 @@ apply plugin: 'docker-compose'
 
 dockerCompose {
 
-    projectName = null
-    
-    startedServices = ['ftgo-application']
+    startedServices = ['not-used']
+
+    mysqlOnly {
+        projectName = null
+
+        startedServices = ['mysql']
+    }
+
+    services {
+        projectName = null
+        startedServices = ['ftgo-application', 'ftgo-delivery-service', 'ftgo-api-gateway']
+        environment.put "SPRING_PROFILES_ACTIVE", "RemoteDeliveryService"
+    }
+
+    monolith {
+        projectName = null
+        startedServices = ['ftgo-application']
+        environment.put "SPRING_PROFILES_ACTIVE", ""
+    }
 
 }
 
 // Alternative, use dockerCompose.isRequiredBy(test)
 
-composeBuild.dependsOn(":ftgo-application:assemble")
-composeUp.dependsOn(composeBuild)
-test.dependsOn(composeUp)
+servicesComposeBuild.dependsOn(":ftgo-application:assemble")
+monolithComposeBuild.dependsOn(":ftgo-application:assemble")
+
+servicesComposeUp.dependsOn(servicesComposeBuild)
+monolithComposeUp.dependsOn(monolithComposeBuild)
+
+mysqlOnlyComposeUp.finalizedBy ":ftgo-flyway:flywayMigrate"
+servicesComposeUp.dependsOn(mysqlOnlyComposeUp)
+monolithComposeUp.dependsOn(mysqlOnlyComposeUp)
+
+
+if (ftgoTestMode == "monolith")
+    test.dependsOn(monolithComposeUp)
+else
+    test.dependsOn(servicesComposeUp)
+
+test {
+    systemProperty "ftgo.service.port", ftgoTestMode == "monolith" ? "8081" : "8087"
+}

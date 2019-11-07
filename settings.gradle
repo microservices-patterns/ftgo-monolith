@@ -18,6 +18,7 @@ include "ftgo-delivery-backend"
 include "ftgo-delivery-backend-api"
 include "ftgo-delivery-service"
 include "ftgo-delivery-service-api"
+include "ftgo-delivery-service-proxy"
 
 include "ftgo-consumer-service-api"
 include "ftgo-consumer-service"
@@ -30,7 +31,8 @@ include "ftgo-courier-service"
 
 include "ftgo-application"
 
+include "ftgo-api-gateway"
+
 include "ftgo-end-to-end-tests-common"
 include "ftgo-end-to-end-tests"
-
 
