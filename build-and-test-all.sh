@@ -2,7 +2,7 @@
 
 . ./set-env.sh
 
-./gradlew testClasses
+./gradlew testClasses assemble
 
 docker-compose down --remove-orphans -v
 
@@ -10,10 +10,12 @@ docker-compose down --remove-orphans -v
 
 ./gradlew -x :ftgo-end-to-end-tests:test -x :ftgo-delivery-service:componentTest $* build
 
-docker-compose build
+docker-compose down --remove-orphans -v
 
-./gradlew $* integrationTest
+./build-and-test-delivery-service.sh
 
-./run-end-to-end-tests-monolith.sh
+docker-compose down --remove-orphans -v
+
+./run-end-to-end-tests-microservices.sh
 
 

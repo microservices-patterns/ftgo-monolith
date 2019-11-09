@@ -6,11 +6,9 @@ import net.chrisrichardson.ftgo.deliveryservice.api.service.DeliveryService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
 
 @Configuration
 @Import(TramCommandProducerConfiguration.class)
-@Profile("RemoteDeliveryService")
 public class DeliveryServiceRemoteConfiguration {
 
   @Bean

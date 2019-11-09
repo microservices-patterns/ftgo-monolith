@@ -21,11 +21,7 @@ jobs:
       - run:
           command:     |
             . ./setenv-circle-ci.sh
-            ./build-and-test-ftgo-monolith.sh
-      - run:
-          command:     |
-            . ./setenv-circle-ci.sh
-            ./build-and-test-ftgo-microservices.sh
+            ./build-and-test-all.sh
       - run:
           name:        Save test results
           command:     |

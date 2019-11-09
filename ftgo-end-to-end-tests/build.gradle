@@ -21,32 +21,22 @@ dockerCompose {
         environment.put "SPRING_PROFILES_ACTIVE", "RemoteDeliveryService"
     }
 
-    monolith {
-        projectName = null
-        startedServices = ['ftgo-application']
-        environment.put "SPRING_PROFILES_ACTIVE", ""
-    }
 
 }
 
 // Alternative, use dockerCompose.isRequiredBy(test)
 
 servicesComposeBuild.dependsOn(":ftgo-application:assemble")
-monolithComposeBuild.dependsOn(":ftgo-application:assemble")
+servicesComposeBuild.dependsOn(":ftgo-delivery-service:assemble")
 
 servicesComposeUp.dependsOn(servicesComposeBuild)
-monolithComposeUp.dependsOn(monolithComposeBuild)
 
 mysqlOnlyComposeUp.finalizedBy ":ftgo-flyway:flywayMigrate"
 servicesComposeUp.dependsOn(mysqlOnlyComposeUp)
-monolithComposeUp.dependsOn(mysqlOnlyComposeUp)
 
 
-if (ftgoTestMode == "monolith")
-    test.dependsOn(monolithComposeUp)
-else
-    test.dependsOn(servicesComposeUp)
+test.dependsOn(servicesComposeUp)
 
 test {
-    systemProperty "ftgo.service.port", ftgoTestMode == "monolith" ? "8081" : "8087"
+    systemProperty "ftgo.service.port", "8087"
 }
